@@ -1,0 +1,123 @@
+import { clsx, type ClassValue } from "clsx"
+import { toast } from "sonner";
+import { twMerge } from "tailwind-merge"
+import { TFile, TFolder } from "./types";
+
+export function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs))
+}
+
+
+export const processFileType = (file: string) => {
+    const ext = file.split(".").pop();
+
+    if (ext === "ts" || ext === "tsx") return "typescript"
+    if (ext === "js" || ext === "jsx") return "javascript"
+    if (ext) return ext;
+
+    return "plaintext"
+}
+
+export const decodeTerminalResponse = (buffer: Buffer): string => {
+    return buffer.toString("utf-8")
+}
+
+export function validateName(
+    newName: string,
+    oldName: string,
+    type: "file" | "folder"
+) {
+    if (
+        newName === oldName || newName.length === 0 ||
+        newName.includes("/") ||
+        newName.includes("\\") ||
+        newName.includes(" ") ||
+        (type === "file" && !newName.includes(".")) ||
+        (type === "folder" && newName.includes("."))
+    ) {
+        toast.error(`Invalid ${type} name`);
+        return false;
+    }
+    return true;
+}
+
+export const getFilesInFolder = (tree: (TFile | TFolder)[], targetPath: string): {
+        file: string[],
+        folder: string[]
+    } => {
+    const getParentPath = (path: string) => {
+        const parts = path.split('/');
+        parts.pop(); 
+        return parts.join('/');
+    };
+    const result: {
+        file: string[],
+        folder: string[]
+    } = {
+        file: [],
+        folder: []
+    }
+
+    for (const node of tree) {
+        if (getParentPath(node.fullPath) === targetPath) {
+            if(node.type === "file"){
+                result["file"].push(node.name)
+            }else{
+                result["folder"].push(node.name)
+
+            }
+        }
+
+        if (node.type === "folder") {
+            const nested = getFilesInFolder(node.children, targetPath);
+            result.file.push(...nested.file);
+            result.folder.push(...nested.folder);
+        }
+    }
+
+    return result;
+};
+
+
+// export const getFilesInFolder = (tree: (TFile | TFolder)[], targetPath: string): string[] => {
+//     const directMatches = tree.map(n => n.fullPath);
+//     console.log(ta)
+//     console.log(directMatches)
+//     if (directMatches.includes(targetPath)) {
+//         console.log("yes")
+//         return directMatches
+//     } else {
+//         for (const node of tree) {
+//             if (node.type === "folder") {
+//                 if (node.fullPath === targetPath) {
+//                     return node.children.map(child => child.name);
+//                 }
+
+//                 const result = getFilesInFolder(node.children, targetPath);
+//                 if (result.length > 0) return result;
+//             }
+//         }
+
+//         return [];
+//     }
+//     // if (directMatches.some(path => path.startsWith(targetPath))) {
+//     //     const result: string[] = [];
+
+//     //     for (const item of tree) {
+//     //         if (item.fullPath.startsWith(targetPath) &&
+//     //             item.fullPath.replace(targetPath, "").split("/").filter(Boolean).length === 1
+//     //         ) {
+//     //             result.push(item.name);
+//     //         }
+//     //     }
+
+//     //     return result;
+//     // }
+
+//     // Recursively search nested folders
+
+// };
+
+
+
+
