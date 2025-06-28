@@ -6,7 +6,7 @@ import { useState, useEffect } from "react"
 import DashboardSharedPage from "./shared"
 import DashboardProjects from "./projects"
 import NewProjectModal from "./newProject"
-import { SharedUserType, UserType, VirtualBoxType } from "../../lib/types"
+import { UserType, VirtualBoxType } from "../../lib/types"
 import { useSearchParams } from "next/navigation"
 import AboutModal from "./about"
 import { toast } from "sonner"
@@ -31,7 +31,7 @@ const Dashboard = ({ userData, virtualBoxList }: {
             setShared(res)
         }
         fetchData();
-    }, [])
+    }, [userData.id])
 
 
 

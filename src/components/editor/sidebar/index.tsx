@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react'
-import { FilePlus, FolderPlus, Loader2, MonitorPlay, Search, Sparkles } from 'lucide-react'
+import { FilePlus, FolderPlus, Loader2, Search, Sparkles } from 'lucide-react'
 import SideBarFile from './file'
 import SidebarFolder from './folder'
 import { TFile, TFolder, TTab } from '@/frontend/src/lib/types'
@@ -8,8 +8,6 @@ import New from './new'
 import { Socket } from 'socket.io-client'
 import { getFilesInFolder, validateName } from '@/frontend/src/lib/utils'
 import { toast } from 'sonner'
-import { Button } from '../../ui/button'
-import CustomToggle from '../../custom/customToggle'
 
 const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree, tree, ai,setAi }: {
     folderTree: (TFile | TFolder)[]
@@ -40,6 +38,8 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
             }
             return updated;
         });
+
+
     };
 
 

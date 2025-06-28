@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 import { Check, Loader2, RotateCw, Sparkles } from "lucide-react";
 import { Socket } from "socket.io-client";
-import { BeforeMount, Editor, OnMount } from "@monaco-editor/react";
+import { Editor } from "@monaco-editor/react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { UserType } from "../../lib/types";
@@ -59,6 +59,9 @@ export default function GenerateInput({
             toast.error("You reached the maximum # of generations.");
             return;
         }
+
+        cancel()
+        submit("dw")
 
         setCode("");
         setLoading({ generate: !regenerate, regenerate });

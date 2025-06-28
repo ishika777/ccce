@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { getIconForFile } from 'vscode-icons-js'
 import Image from 'next/image'
 import { TFile, TTab } from '@/frontend/src/lib/types'
-import { toast, Toaster } from 'sonner'
+import { toast } from 'sonner'
 import {
     ContextMenu,
     ContextMenuContent,

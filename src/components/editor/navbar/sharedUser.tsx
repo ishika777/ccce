@@ -33,10 +33,13 @@ export default function SharedUser({
             toast.success(res.message);
             setOpen(false);
             fetchData()
-        } catch (error: any) {
-            toast.error(error);
-            console.log("Error deleting virtual box:", error);
-        } finally {
+        }catch (error: unknown) {
+        if (error instanceof Error) {
+            toast.error(error.message);
+        } else {
+            toast.error("An unknown error occurred.");
+        }
+    } finally {
             setIsRemoving(false);
             setOpenRemove(false);
         }
@@ -52,7 +55,6 @@ export default function SharedUser({
                 handleUnshare={handleUnshare}
                 isDeleting={isRemoving}
                 setIsDeleting={setIsRemoving}
-                virtualBoxId={virtualboxId}
             />
             <div className="flex items-center justify-between">
                 <div className="flex items-center">

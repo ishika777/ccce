@@ -10,7 +10,7 @@ const liveblocks = new Liveblocks({
     secret: process.env.LIVEBLOCKS_SECRET_KEY!,
 });
 
-export async function POST(request: NextRequest) {
+export async function POST() {
     const clerkUser = await currentUser();
 
     if (!clerkUser) {
@@ -20,8 +20,12 @@ export async function POST(request: NextRequest) {
     let user;
     try {
         user = await fetchUserById(clerkUser.id);
-    } catch (error: any) {
-        toast.error(error)
+    }catch (error: unknown) {
+        if (error instanceof Error) {
+            toast.error(error.message);
+        } else {
+            toast.error("An unknown error occurred.");
+        }
     }
 
 
@@ -33,7 +37,7 @@ export async function POST(request: NextRequest) {
     const randomColor = colorNames[
         Math.floor(Math.random() * colorNames.length)
     ] as keyof typeof colors;
-    const code = colors[randomColor];
+    // const code = colors[randomColor];
 
     const session = liveblocks.prepareSession(user.id, {
         userInfo: {
@@ -44,12 +48,12 @@ export async function POST(request: NextRequest) {
         },
     });
 
-    // user.virtualbox.forEach((virtualbox: VirtualBoxType) => {
-    //     session.allow(`${virtualbox.id}`, session.FULL_ACCESS);
-    // });
-    // user.usersToVirtualboxes.forEach((userToVirtualbox: UsersToVirtualBoxesType) => {
-    //     session.allow(`${userToVirtualbox.virtualboxId}`, session.FULL_ACCESS);
-    // });
+    user.virtualbox.forEach((virtualbox: VirtualBoxType) => {
+        session.allow(`${virtualbox.id}`, session.FULL_ACCESS);
+    });
+    user.usersToVirtualboxes.forEach((userToVirtualbox: UsersToVirtualBoxesType) => {
+        session.allow(`${userToVirtualbox.virtualboxId}`, session.FULL_ACCESS);
+    });
 
     const { body, status } = await session.authorize();
     return new Response(body, { status });

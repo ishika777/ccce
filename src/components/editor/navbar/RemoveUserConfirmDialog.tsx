@@ -12,13 +12,12 @@ import {
 
 
 
-const RemoveUserConfirmDialog = ({handleUnshare, open, setOpen, isDeleting, setIsDeleting, virtualBoxId}: {
+const RemoveUserConfirmDialog = ({handleUnshare, open, setOpen, isDeleting, setIsDeleting}: {
     handleUnshare: () => void
     open: boolean;
     setOpen: (open: boolean) => void;
     isDeleting: boolean
     setIsDeleting: (isDeleting: boolean) => void
-    virtualBoxId: string
 }) => {
   return (
    <Dialog open={open} onOpenChange={setOpen}>

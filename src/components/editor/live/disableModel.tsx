@@ -29,7 +29,7 @@ export default function DisableAccessModal({
 
       return () => clearTimeout(timeout);
     }
-  }, []);
+  }, [open, router]);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>

@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { getIconForFolder, getIconForOpenFolder } from 'vscode-icons-js';
 import Image from 'next/image';
 import SideBarFile from './file';
-import { TFile, TFolder, TTab } from '@/frontend/src/lib/types';
+import {TFolder, TTab } from '@/frontend/src/lib/types';
 import { toast } from 'sonner';
 import New from './new';
 import { Socket } from 'socket.io-client';

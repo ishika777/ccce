@@ -108,9 +108,13 @@ export default function NewProjectModal({
             setLoading(true);
             await createVirtualBox(virtualboxData);
             router.refresh()
-        } catch (error: any) {
-            toast.error(error)
-        } finally {
+        }catch (error: unknown) {
+        if (error instanceof Error) {
+            toast.error(error.message);
+        } else {
+            toast.error("An unknown error occurred.");
+        }
+    }finally {
             form.reset();
             setLoading(false);
             setOpen(false);

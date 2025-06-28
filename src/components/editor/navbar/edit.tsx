@@ -66,9 +66,13 @@ const EditVirtualBoxModal = ({ open, setOpen, data, userId, virtualboxId }: {
             const res = await updateVirtualBox(virtualboxId, userId, values.name, values.visibility);
             await router.refresh();
             toast.success(res.message);
-        } catch (error: any) {
-            toast.error(error)
-        } finally {
+        }catch (error: unknown) {
+        if (error instanceof Error) {
+            toast.error(error.message);
+        } else {
+            toast.error("An unknown error occurred.");
+        }
+    } finally {
             setOpen(false);
             setLoading(false);
         }
@@ -85,9 +89,13 @@ const EditVirtualBoxModal = ({ open, setOpen, data, userId, virtualboxId }: {
             const res = await deleteVirtualBox(data);
             router.push("/dashboard");
             toast.success(res.message);
-        } catch (error: any) {
-            toast.error(error);
-        } finally {
+        }catch (error: unknown) {
+        if (error instanceof Error) {
+            toast.error(error.message);
+        } else {
+            toast.error("An unknown error occurred.");
+        }
+    } finally {
             setLoadingDelete(false);
         }
     }

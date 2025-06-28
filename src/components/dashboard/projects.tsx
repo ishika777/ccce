@@ -33,9 +33,13 @@ const DashboardProjects = ({ userData, virtualboxes, q }: {
             await router.refresh();
             toast.success(res.message);
 
-        } catch (error: any) {
-            toast.error(error);
-        } finally {
+        }catch (error: unknown) {
+        if (error instanceof Error) {
+            toast.error(error.message);
+        } else {
+            toast.error("An unknown error occurred.");
+        }
+    } finally {
             setIsDeletingAll(false);
             setOpenDeleteAll(false);
         }
@@ -51,10 +55,13 @@ const DashboardProjects = ({ userData, virtualboxes, q }: {
             await router.refresh();
             toast.success(res.message);
 
-        } catch (error: any) {
-            toast.error(error);
-            console.log("Error deleting virtual box:", error);
-        } finally {
+        }catch (error: unknown) {
+        if (error instanceof Error) {
+            toast.error(error.message);
+        } else {
+            toast.error("An unknown error occurred.");
+        }
+    } finally {
             setIsDeleting(false);
             setOpenDelete(false);
         }
@@ -68,9 +75,13 @@ const DashboardProjects = ({ userData, virtualboxes, q }: {
             const res = await changeVisibility(virtualbox.id, userData.id, newVisibility);
             await router.refresh();
             toast.success(res.message);
-        } catch (error: any) {
-            toast.error(error)
+        }catch (error: unknown) {
+        if (error instanceof Error) {
+            toast.error(error.message);
+        } else {
+            toast.error("An unknown error occurred.");
         }
+    }
     };
 
     return (

@@ -3,12 +3,12 @@
 import { useState, useEffect } from "react";
 import { z } from "zod";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, } from "../../ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, } from "../../ui/form";
+import { Form, FormField, FormItem, FormLabel, FormMessage, } from "../../ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
 import { Button } from "../../ui/button";
-import { Loader2, UserPlus, X } from "lucide-react";
+import { Loader2, UserPlus } from "lucide-react";
 import { UserType, VirtualBoxType } from "@/frontend/src/lib/types";
 import SharedUser from "./sharedUser";
 import { toast } from "sonner";
@@ -54,14 +54,18 @@ const ShareVirtualboxModal = ({
             setAllUsers(filteredUsers);
             setShared(sharedUsers);
            
-        } catch (error: any) {
-            toast.error(error)
+        }catch (error: unknown) {
+        if (error instanceof Error) {
+            toast.error(error.message);
+        } else {
+            toast.error("An unknown error occurred.");
         }
+    }
     }
 
     useEffect(() => {
         fetchData();
-    }, [open])
+    }, [open, fetchData])
 
 
 
@@ -71,9 +75,13 @@ const ShareVirtualboxModal = ({
             const res = await shareVirtualBox(data.id, userId, values.email);
             toast.success(res.message);
             setOpen(false);
-        } catch (error: any) {
-            toast.error(error)
-        } finally {
+        }catch (error: unknown) {
+        if (error instanceof Error) {
+            toast.error(error.message);
+        } else {
+            toast.error("An unknown error occurred.");
+        }
+    } finally {
             setLoading(false);
             form.reset();
         }

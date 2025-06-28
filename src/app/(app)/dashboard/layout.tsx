@@ -14,11 +14,13 @@ const AppAuthLayout = async ({ children }: { children: React.ReactNode }) => {
     let dbUser;
     try {
         dbUser = await fetchUserById(user.id);
-    } catch (error: any) {
-        console.log(error)
-        toast.error(error)
+    } catch (error: unknown) {
+        if (error instanceof Error) {
+            toast.error(error.message);
+        } else {
+            toast.error("An unknown error occurred.");
+        }
     }
-    console.log(dbUser);
 
     if (!dbUser || Object.keys(dbUser).length === 0) {
         const data = {
@@ -29,9 +31,13 @@ const AppAuthLayout = async ({ children }: { children: React.ReactNode }) => {
         try {
             const newUser = await createUser(data);
             console.log(newUser)
-        } catch (error: any) {
-            toast.error(error)
+        } catch (error: unknown) {
+        if (error instanceof Error) {
+            toast.error(error.message);
+        } else {
+            toast.error("An unknown error occurred.");
         }
+    }
     }
 
 
