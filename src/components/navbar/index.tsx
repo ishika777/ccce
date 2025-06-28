@@ -3,7 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import NavbarSearch from './search'
 import NavBarUserButton from './userButton'
-import { UserType, VirtualBoxType } from '../../lib/types'
+import { UserType } from '../../lib/types'
 
 const Navbar = ({ userData }: { 
     userData: UserType

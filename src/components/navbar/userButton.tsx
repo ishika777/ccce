@@ -1,14 +1,22 @@
 "use client";
+
 import { useClerk } from "@clerk/nextjs";
 import { LogOut, Pencil, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuItem } from "../ui/dropdown-menu";
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuSeparator,
+    DropdownMenuItem,
+} from "../ui/dropdown-menu";
 import { UserType } from "../../lib/types";
 
 export default function NavBarUserButton({ userData }: { userData: UserType }) {
-    if (!userData) return null;
     const { signOut } = useClerk();
     const router = useRouter();
+
+    if (!userData) return null;
 
     return (
         <DropdownMenu>

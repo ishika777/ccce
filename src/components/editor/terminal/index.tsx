@@ -2,7 +2,7 @@
 import React, { useRef, useState, useEffect } from 'react'
 import { Socket } from 'socket.io-client'
 import { Terminal } from "@xterm/xterm"
-import { FitAddon } from "@xterm/addon-fit"
+// import { FitAddon } from "@xterm/addon-fit"
 import "./xterm.css"
 import { Loader2 } from 'lucide-react'
 
@@ -16,29 +16,29 @@ const EditorTerminal = ({ socket }: {
     useEffect(() => {
         if (!terminalRef.current) return;
 
-        // const terminal = new Terminal({
-        //     cursorBlink: true,
-        //     theme: {
-        //         background: "#262626"
-        //     },
-        //     fontSize: 14,
-        //     fontFamily: "var(--font-geist-mono)"
-        // })
+        const terminal = new Terminal({
+            cursorBlink: true,
+            theme: {
+                background: "#262626"
+            },
+            fontSize: 14,
+            fontFamily: "var(--font-geist-mono)"
+        })
 
-        // setTerm(terminal)
-        // return () => {
-        //     if (terminal) terminal.dispose()
-        // }
+        setTerm(terminal)
+        return () => {
+            if (terminal) terminal.dispose()
+        }
     }, [])
 
     useEffect(() => {
 
         if (!term) return
-        // const onConnect = () => {
-        //     setTimeout(() => {
-        //         socket.emit("create-terminal", { id: "testId" })
-        //     }, 2000);
-        // }
+        const onConnect = () => {
+            setTimeout(() => {
+                socket.emit("create-terminal", { id: "testId" })
+            }, 2000);
+        }
 
         // const onTerminalResponse = (response: {data: string}) => {
         //     const res = response.data
@@ -46,7 +46,7 @@ const EditorTerminal = ({ socket }: {
         // };
 
 
-        // socket.on("connect", onConnect);
+        socket.on("connect", onConnect);
         // if (terminalRef.current) {
         //     socket.on("terminal-response", onTerminalResponse)
 
@@ -66,11 +66,11 @@ const EditorTerminal = ({ socket }: {
         //     data: "\n"
         // })
 
-        // return () => {
-        //     socket.off("connect", onConnect)
-        //     socket.off("terminal-response", onTerminalResponse)
-        //     disposable.dispose()
-        // }
+        return () => {
+            socket.off("connect", onConnect)
+            // socket.off("terminal-response", onTerminalResponse)
+            // disposable.dispose()
+        }
 
     }, [term, terminalRef.current])
 

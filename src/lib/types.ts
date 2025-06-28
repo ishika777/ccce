@@ -15,7 +15,7 @@ export type SharedUserType = {
             id: string;
             name: string;
             email: string;
-            image: any;
+            image: string;
         };
     sharedOn: Date;
 }
