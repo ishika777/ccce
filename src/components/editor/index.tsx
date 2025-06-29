@@ -5,7 +5,7 @@ import {
     ResizablePanelGroup,
 } from "../ui/resizable"
 import { Button } from "../ui/button";
-import {FileJson, Loader2, Plus, SquareTerminal, TerminalSquare} from "lucide-react";
+import { FileJson, Loader2, Plus, SquareTerminal, TerminalSquare } from "lucide-react";
 import { BeforeMount, OnMount } from "@monaco-editor/react";
 import { useEffect, useRef, useState } from "react";
 import monaco from "monaco-editor";
@@ -34,7 +34,7 @@ import PreviewWindow from "./preview";
 import { ImperativePanelHandle } from "react-resizable-panels";
 
 const EditorTerminal = dynamic(() => import("./terminal"), {
-  ssr: false,
+    ssr: false,
 });
 
 const Editor = dynamic(() => import('@monaco-editor/react'), {
@@ -113,14 +113,6 @@ const CodeEditor = ({ userData, virtualBox }: {
     const activeTerminal = terminals.find((t) => t.id === activeTerminalId);
 
 
-    const resizeObserver = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-            const { width } = entry.contentRect;
-            setGenerate((prev) => {
-                return { ...prev, width };
-            });
-        }
-    });
 
 
     useEffect(() => {
@@ -131,6 +123,16 @@ const CodeEditor = ({ userData, virtualBox }: {
             toast.error(`Connection failed: ${err.message}`)
         })
 
+
+        const resizeObserver = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                const { width } = entry.contentRect;
+                setGenerate((prev) => {
+                    return { ...prev, width };
+                });
+            }
+        });
+
         if (editorContainerRef.current) {
             resizeObserver.observe(editorContainerRef.current)
         }
@@ -139,7 +141,7 @@ const CodeEditor = ({ userData, virtualBox }: {
             socket.disconnect()
             resizeObserver.disconnect()
         }
-    }, [resizeObserver, socket])
+    }, [socket])
 
     useEffect(() => {
         const onLoadedEvent = (tree: (TFolder | TFile)[]) => {
@@ -151,7 +153,7 @@ const CodeEditor = ({ userData, virtualBox }: {
 
         const onDisconnect = () => {
             setTerminals([])
-            if(closingTerminal){}  //for build
+            if (closingTerminal) { }  //for build
         }
 
         const onRateLimit = (message: string) => {
@@ -202,7 +204,7 @@ const CodeEditor = ({ userData, virtualBox }: {
             const model = editor.getModel();
             const endColumn = model?.getLineContent(lineNumber).length || 0
 
-            if(column && endColumn){} //for build
+            if (column && endColumn) { } //for build
 
             // setDecorations((prev) => {
             //     return {
@@ -305,7 +307,7 @@ const CodeEditor = ({ userData, virtualBox }: {
             binding?.destroy();
             yProvider.off("sync", onSync);
         };
-    }, [editorRef, room, activeFile]);
+    }, [editorRef, room, activeFile, router, tabs, activeId]);
 
     useEffect(() => {
         if (!ai) {
@@ -441,7 +443,7 @@ const CodeEditor = ({ userData, virtualBox }: {
 
 
         const nextTab = tabs.find((t) => t.id === nextId)
-        if(nextTab){}  //for build
+        if (nextTab) { }  //for build
         if (!nextId) {
             setActiveId("");
         } else {
@@ -581,7 +583,7 @@ const CodeEditor = ({ userData, virtualBox }: {
                             }}
 
                             cancel={() => { }}
-                            submit={(str: string) => {console.log(str)}}
+                            submit={(str: string) => { console.log(str) }}
 
                             width={generate.width - 90}
 

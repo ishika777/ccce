@@ -142,10 +142,7 @@ const SidebarFolder = ({
                                             <New
                                                 type={creatingNew}
                                                 stopEditing={() => setCreatingNew(null)}
-                                                socket={socket}
                                                 createNew={createNew}
-                                                pendingCreate={pendingCreate}
-                                                setPendingCreate={setPendingCreate}
                                             />
                                         )
                                     }
