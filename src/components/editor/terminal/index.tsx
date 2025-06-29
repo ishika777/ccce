@@ -1,92 +1,92 @@
-"use client"
-import React, { useRef, useState, useEffect } from 'react'
-import { Socket } from 'socket.io-client'
-import { Terminal } from "@xterm/xterm"
-// import { FitAddon } from "@xterm/addon-fit"
-import "./xterm.css"
-import { Loader2 } from 'lucide-react'
+"use client";
 
-const EditorTerminal = ({ socket }: {
-    socket: Socket
-}) => {
+import { useEffect, useRef } from "react";
+import { Socket } from "socket.io-client";
+import { Terminal } from "@xterm/xterm";
+import { FitAddon } from "@xterm/addon-fit";
+import "./xterm.css";
+import { Loader2 } from "lucide-react";
 
+export default function EditorTerminal({
+    visible,
+    id,
+    socket,
+    term,
+    setTerm,
+}: {
+    visible: boolean;
+    id: string;
+    socket: Socket;
+    term: Terminal | null;
+    setTerm: (term: Terminal) => void;
+}) {
     const terminalRef = useRef(null);
-    const [term, setTerm] = useState<Terminal | null>(null);
 
     useEffect(() => {
         if (!terminalRef.current) return;
 
+        if (term) return;
+
         const terminal = new Terminal({
             cursorBlink: true,
             theme: {
-                background: "#262626"
+                background: "#262626",
             },
             fontSize: 14,
-            fontFamily: "var(--font-geist-mono)"
-        })
+            fontFamily: "var(--font-geist-mono)",
+            lineHeight: 1.5,
+            letterSpacing: 0,
+        });
 
-        setTerm(terminal)
+        setTerm(terminal);
+
         return () => {
-            if (terminal) terminal.dispose()
-        }
-    }, [])
+            if (terminal) terminal.dispose();
+        };
+    }, [term, setTerm]);
 
     useEffect(() => {
+        if (!term) return;
 
-        if (!term) return
-        const onConnect = () => {
-            setTimeout(() => {
-                socket.emit("create-terminal", { id: "testId" })
-            }, 2000);
-        }
+        if (!terminalRef.current) return;
 
-        // const onTerminalResponse = (response: {data: string}) => {
-        //     const res = response.data
-        //     term.write(res)
-        // };
+        const fitAddon = new FitAddon();
 
+        term.loadAddon(fitAddon);
+        term.open(terminalRef.current);
+        fitAddon.fit();
 
-        socket.on("connect", onConnect);
-        // if (terminalRef.current) {
-        //     socket.on("terminal-response", onTerminalResponse)
+        const disposableOnData = term.onData((data) => {
+            socket.emit("terminalData", id, data);
+        });
 
-        //     const fitAddon = new FitAddon()
+        const disposableOnResize = term.onResize((dimensions) => {
+            fitAddon.fit();
+            socket.emit("terminalResize", dimensions);
+        });
 
-        //     // term.loadAddon(fitAddon)
-        //     term.open(terminalRef.current)
-        //     // fitAddon.fit()
-        //     setTerm(term)
-
-        // }
-
-        // const disposable = term.onData((data) => {
-        //     socket.emit("terminal-data", "testId", data);
-        // })
-        // socket.emit("terminal-data", {
-        //     data: "\n"
-        // })
+        // socket.emit("terminalData", "\n");
 
         return () => {
-            socket.off("connect", onConnect)
-            // socket.off("terminal-response", onTerminalResponse)
-            // disposable.dispose()
-        }
-
-    }, [term, terminalRef.current])
+            disposableOnData.dispose();
+            disposableOnResize.dispose();
+        };
+    }, [term, socket, id]);
 
     return (
         <div>
-            <div ref={terminalRef} className='w-full h-full text-xs text-left'></div>
-            {
-                term === null && (
-                    <div className='flex items-center text-muted-foreground p-2'>
-                        <Loader2 className='animate-spin mr-2 e-4 h-4' />
-                        <span>Connecting to Terminal...</span>
+            <div
+                ref={terminalRef}
+                style={{ display: visible ? "block" : "none" }}
+                className="w-full h-full text-left"
+            >
+                {term === null ? (
+                    <div className="flex items-center text-muted-foreground p-2">
+                        <Loader2 className="animate-spin mr-2 w-4 h-4" />
+                        <span>Connecting to terminal....</span>
                     </div>
-                )
-            }
+                ) : null}
+            </div>
         </div>
-    )
+    );
 }
-
-export default EditorTerminal

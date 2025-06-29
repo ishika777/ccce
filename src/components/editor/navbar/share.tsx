@@ -12,8 +12,7 @@ import { Loader2, UserPlus } from "lucide-react";
 import { UserType, VirtualBoxType } from "@/frontend/src/lib/types";
 import SharedUser from "./sharedUser";
 import { toast } from "sonner";
-import { fetchSharedUsers, shareVirtualBox } from "@/frontend/actions/virtualBox-actions";
-import { fetchAllUsers } from "@/frontend/actions/user-actions";
+import { shareVirtualBox } from "@/frontend/actions/virtualBox-actions";
 
 const formSchema = z.object({
     email: z.string().email(),
@@ -24,16 +23,21 @@ const ShareVirtualboxModal = ({
     open,
     setOpen,
     data,
-    userId
+    userId,
+    fetchData,
+    shared,
+    allUsers,
 }: {
     open: boolean;
     setOpen: (open: boolean) => void;
     data: VirtualBoxType;
     userId: string;
+    fetchData: () => void
+    shared: UserType[]
+    allUsers: UserType[]
 }) => {
 
-    const [shared, setShared] = useState<UserType[]>([]);
-    const [allUsers, setAllUsers] = useState<UserType[]>([]);
+
     const [loading, setLoading] = useState(false);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -41,27 +45,6 @@ const ShareVirtualboxModal = ({
             email: "",
         },
     });
-
-
-    const fetchData = async () => {
-        try {
-            const allUsersData = await fetchAllUsers() as UserType[];
-            const sharedUsers = await fetchSharedUsers(userId) as UserType[];
-
-            const sharedEmails = sharedUsers.map(user => user.email);
-            const filteredUsers = allUsersData.filter(user => !sharedEmails.includes(user.email));
-
-            setAllUsers(filteredUsers);
-            setShared(sharedUsers);
-           
-        }catch (error: unknown) {
-        if (error instanceof Error) {
-            toast.error(error.message);
-        } else {
-            toast.error("An unknown error occurred.");
-        }
-    }
-    }
 
     useEffect(() => {
         fetchData();
@@ -75,13 +58,13 @@ const ShareVirtualboxModal = ({
             const res = await shareVirtualBox(data.id, userId, values.email);
             toast.success(res.message);
             setOpen(false);
-        }catch (error: unknown) {
-        if (error instanceof Error) {
-            toast.error(error.message);
-        } else {
-            toast.error("An unknown error occurred.");
-        }
-    } finally {
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                toast.error(error.message);
+            } else {
+                toast.error("An unknown error occurred.");
+            }
+        } finally {
             setLoading(false);
             form.reset();
         }

@@ -5,20 +5,19 @@ import {
     ResizablePanelGroup,
 } from "../ui/resizable"
 import { Button } from "../ui/button";
-import { ConstructionIcon, FileJson, Plus, SquareTerminal, X } from "lucide-react";
+import {FileJson, Loader2, Plus, SquareTerminal, TerminalSquare} from "lucide-react";
 import { BeforeMount, OnMount } from "@monaco-editor/react";
 import { useEffect, useRef, useState } from "react";
 import monaco from "monaco-editor";
 
 import Sidebar from "./sidebar";
 import CustomTab from "../custom/customTab";
-import { TTab, UserType } from "../../lib/types";
+import { TTab, UserType, VirtualBoxType } from "../../lib/types";
 import { TFile, TFolder } from "../../lib/types";
 import { io } from "socket.io-client"
 import { processFileType } from "../../lib/utils";
 import { useClerk } from "@clerk/nextjs";
 import { toast } from "sonner";
-import EditorTerminal from "./terminal";
 import GenerateInput from "./generate";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
@@ -28,25 +27,36 @@ import { LiveblocksYjsProvider } from "@liveblocks/yjs";
 import { Awareness } from "y-protocols/awareness.js";
 import { TypedLiveblocksProvider, useRoom } from "@/frontend/liveblocks.config";
 import { Cursors } from "./live/cursor";
+import { Terminal } from "@xterm/xterm";
+import { createId } from "@paralleldrive/cuid2";
+import DisableAccessModal from "./live/disableModel";
+import PreviewWindow from "./preview";
+import { ImperativePanelHandle } from "react-resizable-panels";
 
+const EditorTerminal = dynamic(() => import("./terminal"), {
+  ssr: false,
+});
 
 const Editor = dynamic(() => import('@monaco-editor/react'), {
     ssr: false
 })
-
-const CodeEditor = ({ userData, virtualBoxId }: {
+const CodeEditor = ({ userData, virtualBox }: {
     userData: UserType
-    virtualBoxId: string
+    virtualBox: VirtualBoxType
 }) => {
 
 
     const clerk = useClerk()
     const router = useRouter()
+    const room = useRoom()
+
     const monacoRef = useRef<typeof monaco | null>(null)
     const [editorRef, setEditorRef] = useState<monaco.editor.IStandaloneCodeEditor>();
     const generateRef = useRef<HTMLDivElement>(null)
     const editorContainerRef = useRef<HTMLDivElement>(null)
     const generateWidgetRef = useRef<HTMLDivElement>(null)
+    const previewPanelRef = useRef<ImperativePanelHandle>(null);
+
 
 
     const [editorLanguage, setEditorLanguage] = useState<string | undefined>(undefined)
@@ -80,12 +90,27 @@ const CodeEditor = ({ userData, virtualBoxId }: {
     const [tabs, setTabs] = useState<TTab[]>([]);
     const [activeId, setActiveId] = useState<string>("");
     const [activeFile, setActiveFile] = useState<string | null>(null)
-    const [terminals, setTerminals] = useState<string[]>([]);
 
-    const type = userData?.virtualBox?.find(vb => vb.id === virtualBoxId)?.type ?? null;
+    const [terminals, setTerminals] = useState<
+        {
+            id: string;
+            terminal: Terminal | null;
+        }[]
+    >([]);
+    const [closingTerminal, setClosingTerminal] = useState("");
+    const [activeTerminalId, setActiveTerminalId] = useState("");
+    const [creatingTerminal, setCreatingTerminal] = useState(false);
+    const [disableAccess, setDisableAccess] = useState({ isDisabled: false, message: "" });
 
-    const socket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}?userId=${userData.id}&virtualBoxId=${virtualBoxId}&type=${type}`);
+    const [isPreviewCollapsed, setIsPreviewCollapsed] = useState(
+        virtualBox.type !== "react"
+    );
 
+    const type = userData?.virtualBox?.find(vb => vb.id === virtualBox.id)?.type ?? null;
+
+    const socket = io(`${process.env.NEXT_PUBLIC_BACKEND_URL}?userId=${userData.id}&virtualBoxId=${virtualBox.id}&type=${type}`);
+
+    const activeTerminal = terminals.find((t) => t.id === activeTerminalId);
 
 
     const resizeObserver = new ResizeObserver((entries) => {
@@ -99,7 +124,7 @@ const CodeEditor = ({ userData, virtualBoxId }: {
 
 
     useEffect(() => {
-         if (typeof window === 'undefined') return;
+        if (typeof window === 'undefined') return;
         socket.connect()
 
         socket.on('connect_error', (err) => {
@@ -114,7 +139,55 @@ const CodeEditor = ({ userData, virtualBoxId }: {
             socket.disconnect()
             resizeObserver.disconnect()
         }
-    }, [])
+    }, [resizeObserver, socket])
+
+    useEffect(() => {
+        const onLoadedEvent = (tree: (TFolder | TFile)[]) => {
+            setTree(tree);
+        }
+
+        const onConnect = () => {
+        }
+
+        const onDisconnect = () => {
+            setTerminals([])
+            if(closingTerminal){}  //for build
+        }
+
+        const onRateLimit = (message: string) => {
+            toast.error(message);
+        };
+
+        const onTerminalResponse = (response: { id: string; data: string }) => {
+            const term = terminals.find((t) => t.id === response.id);
+            if (term && term.terminal) term.terminal.write(response.data);
+        };
+
+        const onDisableAccess = (message: string) => {
+            setDisableAccess({
+                isDisabled: true,
+                message: message,
+            });
+        };
+
+        socket.on("connect", onConnect)
+        socket.on("disconnect", onDisconnect)
+
+        socket.on("loaded", onLoadedEvent);
+        socket.on("rateLimit", onRateLimit);
+
+        socket.on("terminalResponse", onTerminalResponse);
+        socket.on("disableAccess", onDisableAccess);
+
+        return () => {
+            socket.off("loaded", onLoadedEvent)
+            socket.off("connect", onConnect)
+            socket.off("disconnect", onDisconnect)
+            socket.off("rateLimit", onRateLimit);
+            socket.off("terminalResponse", onTerminalResponse);
+            socket.off("disableAccess", onDisableAccess);
+        }
+    }, [terminals, socket])
 
 
     const handleEditorMount: OnMount = (editor, monaco) => {
@@ -128,6 +201,8 @@ const CodeEditor = ({ userData, virtualBoxId }: {
 
             const model = editor.getModel();
             const endColumn = model?.getLineContent(lineNumber).length || 0
+
+            if(column && endColumn){} //for build
 
             // setDecorations((prev) => {
             //     return {
@@ -178,7 +253,6 @@ const CodeEditor = ({ userData, virtualBoxId }: {
         }])
     }
 
-    const room = useRoom()
 
     useEffect(() => {
         const tab = tabs.find((t) => t.id === activeId);
@@ -194,7 +268,7 @@ const CodeEditor = ({ userData, virtualBoxId }: {
         if (!tab || !model) return;
 
         const yDoc = new Y.Doc();
-        const yText = yDoc.getText("monaco");
+        const yText: Y.Text = yDoc.getText("monaco");
         const yProvider: any = new LiveblocksYjsProvider(room, yDoc);
 
         const onSync = (isSynced: boolean) => {
@@ -309,7 +383,7 @@ const CodeEditor = ({ userData, virtualBoxId }: {
 
 
         }
-    }, [generate.show])
+    }, [generate.show, activeId, router, tabs])
 
     useEffect(() => {
         if (decorations.options.length === 0) {
@@ -331,55 +405,9 @@ const CodeEditor = ({ userData, virtualBoxId }: {
                 }
             })
         }
-    }, [decorations.options])
-
-    useEffect(() => {
-        const onLoadedEvent = (tree: (TFolder | TFile)[]) => {
-            setTree(tree);
-        }
-
-        const onConnect = () => { }
-
-        const onDisconnect = () => { }
-
-        const onRateLimit = (message: string) => {
-            toast.error(message);
+    }, [decorations.options, ai, cursorLine, editorRef, generate.id, generate.pref, generate.widget])
 
 
-        };
-
-        //  const onTerminalResponse = (response: { id: string; data: string }) => {
-        //         // const res = response.data;
-        //         // console.log("terminal response", res);
-        //         const term = terminals.find((t) => t.id === response.id);
-        //         if (term && term.terminal) term.terminal.write(response.data);
-        //     };
-
-        // const onDisableAccess = (message: string) => {
-        //     setDisableAccess({
-        //         isDisabled: true,
-        //         message: message,
-        //     });
-        // };
-
-        socket.on("connect", onConnect)
-        socket.on("disconnect", onDisconnect)
-
-        socket.on("loaded", onLoadedEvent);
-        socket.on("rateLimit", onRateLimit);
-
-        // socket.on("terminalResponse", onTerminalResponse);
-        // socket.on("disableAccess", onDisableAccess);
-
-        return () => {
-            socket.off("loaded", onLoadedEvent)
-            socket.off("connect", onConnect)
-            socket.off("disconnect", onDisconnect)
-            socket.off("rateLimit", onRateLimit);
-            // socket.off("terminalResponse", onTerminalResponse);
-            // socket.off("disableAccess", onDisableAccess);
-        }
-    }, [])
 
     const selectFile = (tab: TTab) => {
         if (tab.id === activeId) return;
@@ -413,6 +441,7 @@ const CodeEditor = ({ userData, virtualBoxId }: {
 
 
         const nextTab = tabs.find((t) => t.id === nextId)
+        if(nextTab){}  //for build
         if (!nextId) {
             setActiveId("");
         } else {
@@ -460,6 +489,75 @@ const CodeEditor = ({ userData, virtualBoxId }: {
         });
     }
 
+    const createTerminal = () => {
+        setCreatingTerminal(true);
+        const id = createId();
+
+        setTerminals((prev) => [...prev, { id, terminal: null }]);
+        setActiveTerminalId(id);
+
+        setTimeout(() => {
+            socket.emit("createTerminal", id, () => {
+                setCreatingTerminal(false);
+            });
+        }, 1000);
+    };
+
+    const closeTerminal = (term: { id: string; terminal: Terminal | null }) => {
+        const numTerminals = terminals.length;
+        const index = terminals.findIndex((t) => t.id === term.id);
+
+        if (index === -1) return;
+
+        setClosingTerminal(term.id);
+
+        socket.emit("closeTerminal", term.id, () => {
+            setClosingTerminal("");
+            const nextId =
+                activeTerminalId === term.id
+                    ? numTerminals === 1
+                        ? null
+                        : index < numTerminals - 1
+                            ? terminals[index + 1].id
+                            : terminals[index - 1].id
+                    : activeTerminalId;
+
+            // if (activeTerminal && activeTerminal.terminal) {
+            //   activeTerminal.terminal.dispose();
+            // }
+
+            setTerminals((prev) => prev.filter((t) => t.id !== term.id));
+
+            if (!nextId) {
+                setActiveTerminalId("");
+            } else {
+                const nextTerminal = terminals.find((t) => t.id === nextId);
+                if (nextTerminal) {
+                    setActiveTerminalId(nextTerminal.id);
+                }
+            }
+        });
+    };
+
+    // const closeAllTerminals = () => {
+    //     terminals.forEach((term) => {
+    //         socket.emit("closeTerminal", term.id, () => { });
+    //         setTerminals((prev) => prev.filter((t) => t.id === term.id));
+    //     });
+    // };
+
+
+
+
+    if (disableAccess.isDisabled) {
+        return (
+            <>
+                <DisableAccessModal message={disableAccess.message} open={disableAccess.isDisabled} setOpen={() => { }} />
+
+            </>
+        )
+    }
+
 
 
 
@@ -483,9 +581,9 @@ const CodeEditor = ({ userData, virtualBoxId }: {
                             }}
 
                             cancel={() => { }}
-                            submit={(str: string) => { }}
+                            submit={(str: string) => {console.log(str)}}
 
-                            width={generate.width}
+                            width={generate.width - 90}
 
                             onAccept={(code: string) => {
                                 const line = generate.line;
@@ -529,7 +627,7 @@ const CodeEditor = ({ userData, virtualBoxId }: {
                 folderTree={tree}
                 selectFile={selectFile}
                 socket={socket}
-                virtualBoxId={virtualBoxId}
+                virtualBoxId={virtualBox.id}
                 userId={userData.id}
                 tree={tree}
                 setTree={setTree}
@@ -537,7 +635,7 @@ const CodeEditor = ({ userData, virtualBoxId }: {
                 setAi={setAi}
             />
             <ResizablePanelGroup direction="horizontal">
-                <ResizablePanel defaultSize={60} maxSize={75} minSize={30} className="flex flex-col p-1">
+                <ResizablePanel defaultSize={60} maxSize={80} minSize={30} className="flex flex-col p-1">
                     <div className="h-10 w-full flex gap-2 pt-1 px-2 custom-scroll">
                         {
                             tabs.map((tab) => (
@@ -608,62 +706,88 @@ const CodeEditor = ({ userData, virtualBoxId }: {
                                 )
                             )
                         }
-
-
                     </div>
                 </ResizablePanel>
                 <ResizableHandle />
                 <ResizablePanel defaultSize={40}>
                     <ResizablePanelGroup direction="vertical">
-                        <ResizablePanel defaultSize={50} minSize={20} className="p-1 flex flex-col" >
-                            <div className="h-10 w-full flex gap-2">
-                                <Button variant={"secondary"} size={"sm"} className="min-w-20 justify-between" >
-                                    index.html <X className="h-3 w-3" />
-                                </Button>
-                            </div>
+                        <ResizablePanel
+                            ref={previewPanelRef}
+                            collapsedSize={4}
+                            collapsible
+                            onCollapse={() => setIsPreviewCollapsed(true)}
+                            onExpand={() => setIsPreviewCollapsed(false)}
+                            className="p-2 flex flex-col"
+                            defaultSize={40} minSize={20} maxSize={70}
+                        >
+                            <PreviewWindow
+                                collapsed={isPreviewCollapsed}
+                                open={() => {
+                                    previewPanelRef.current?.expand();
+                                    setIsPreviewCollapsed(false);
+                                }}
+                            />
                         </ResizablePanel>
                         <ResizableHandle />
                         <ResizablePanel defaultSize={50} minSize={20} className="p-1 flex flex-col" >
                             <div className="h-10 w-full flex gap-2 shrink-0">
-                                <CustomTab selected>
-                                    <SquareTerminal className="w-4 h-4" />
-                                    <span className="text-xs font-semibold">Shell</span>
-                                </CustomTab>
-                                {/*  */}
-                                {/*  */}
-                                {/*  */}
-                                {/*  */}
-                                {/*  */}
-                                {/*  */}
-                                {/*  */}
-                                {/*  */}
-                                {/*  */}
-                                {/*  */}
-                                {/*  */}
-                                {/*  */}
-                                {/*  */}
-                                {/*  */}
-                                {/*  */}
-                                {/*  */}
-                                {/*  */}
-                                <Button onClick={() => {
-                                    if (terminals.length >= 4) {
-                                        toast.error("You reached the maximum # of terminals");
-                                        return;
-                                    }
-                                    // const id = crypto.randomUUID();
-                                    // setTerminals((prev) => [...prev, id]);
-                                    // socket.emit("create-terminal", id);
-                                }} size={"smIcon"} variant={"secondary"} className="font-normal select-none text-muted-foreground" >
-                                    <Plus className="h-4 w-4" />
+                                {terminals.map((term) => (
+                                    <CustomTab
+                                        key={term.id}
+                                        onClick={() => setActiveTerminalId(term.id)}
+                                        onClose={() => closeTerminal(term)}
+                                        selected={activeTerminalId === term.id}
+                                    >
+                                        <SquareTerminal className="w-4 h-4" />
+                                        <span className="text-xs font-semibold">Shell</span>
+                                    </CustomTab>
+
+                                ))}
+
+                                <Button
+                                    disabled={creatingTerminal}
+                                    onClick={() => {
+                                        if (terminals.length >= 4) {
+                                            toast.error("You reached the maximum # of terminals");
+                                            return;
+                                        }
+                                        createTerminal();
+                                    }} size={"smIcon"} variant={"secondary"} className="font-normal shrink-0 select-none text-muted-foreground" >
+                                    {creatingTerminal ? (
+                                        <Loader2 className="animate-spin w-4 h-4" />
+                                    ) : (
+                                        <Plus className="w-4 h-4" />
+                                    )}
                                 </Button>
 
                             </div>
-                            <div className="w-full relative grow rounded-lg bg-secondary">
-                                {
-                                    socket && <EditorTerminal socket={socket} />
-                                }
-                            </div>
+                            {socket && activeTerminal ? (
+                                <div className="w-full relative grow h-full overflow-auto tab-scroll rounded-lg bg-secondary">
+                                    {terminals.map((term) => (
+                                        <EditorTerminal
+                                            key={term.id}
+                                            socket={socket}
+                                            id={activeTerminal.id}
+                                            term={activeTerminal.terminal}
+                                            setTerm={(t: Terminal) => {
+                                                setTerminals((prev) =>
+                                                    prev.map((term) =>
+                                                        term.id === activeTerminalId
+                                                            ? { ...term, terminal: t }
+                                                            : term
+                                                    )
+                                                );
+                                            }}
+                                            visible={activeTerminalId === term.id}
+                                        />
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="w-full h-full flex items-center justify-center text-lg font-medium text-muted-foreground/50 select-none">
+                                    <TerminalSquare className="w-4 h-4 mr-2" />
+                                    No Terminals Open
+                                </div>
+                            )}
                         </ResizablePanel>
                     </ResizablePanelGroup>
                 </ResizablePanel>

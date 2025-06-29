@@ -1,16 +1,11 @@
 "use client";
 import Image from "next/image";
 import { useEffect, useRef } from "react";
-import { Socket } from "socket.io-client";
 
-export default function New({ socket, type, stopEditing, addNew, createNew, pendingCreate, setPendingCreate }: {
-    socket: Socket;
+export default function New({type, stopEditing, createNew }: {
     type: "file" | "folder" | null;
     stopEditing: () => void;
-    addNew?: (name: string, type: "file" | "folder") => void;
     createNew: (name: string, type: "file" | "folder") => boolean
-    pendingCreate: boolean
-    setPendingCreate: (create: boolean) => void
 }) {
 
     const inputRef = useRef<HTMLInputElement>(null);

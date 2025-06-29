@@ -1,9 +1,9 @@
 import { fetchUserById } from "@/frontend/actions/user-actions";
 import { colors } from "@/frontend/src/lib/colors";
-import { UsersToVirtualBoxesType, UserType, VirtualBoxType } from "@/frontend/src/lib/types";
+import { UsersToVirtualBoxesType, VirtualBoxType } from "@/frontend/src/lib/types";
 import { currentUser } from "@clerk/nextjs/server";
 import { Liveblocks } from "@liveblocks/node";
-import { NextRequest } from "next/server";
+// import { NextRequest } from "next/server";
 import { toast } from "sonner";
 
 const liveblocks = new Liveblocks({
@@ -20,7 +20,7 @@ export async function POST() {
     let user;
     try {
         user = await fetchUserById(clerkUser.id);
-    }catch (error: unknown) {
+    } catch (error: unknown) {
         if (error instanceof Error) {
             toast.error(error.message);
         } else {
@@ -48,12 +48,14 @@ export async function POST() {
         },
     });
 
-    user.virtualbox.forEach((virtualbox: VirtualBoxType) => {
+    user?.virtualbox?.forEach((virtualbox: VirtualBoxType) => {
         session.allow(`${virtualbox.id}`, session.FULL_ACCESS);
     });
-    user.usersToVirtualboxes.forEach((userToVirtualbox: UsersToVirtualBoxesType) => {
+
+    user?.usersToVirtualboxes?.forEach((userToVirtualbox: UsersToVirtualBoxesType) => {
         session.allow(`${userToVirtualbox.virtualboxId}`, session.FULL_ACCESS);
     });
+
 
     const { body, status } = await session.authorize();
     return new Response(body, { status });

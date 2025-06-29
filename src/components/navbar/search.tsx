@@ -19,7 +19,7 @@ const NavbarSearch = () => {
         }, 0)
 
         return () => clearTimeout(delayDebounceFn)
-    }, [search])
+    }, [search, router])
 
 
     return (

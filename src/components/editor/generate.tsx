@@ -103,7 +103,7 @@ export default function GenerateInput({
             onExpand();
             setLoading({ generate: false, regenerate: false });
         }
-    }, [code]);
+    }, [code, onExpand]);
 
     return (
         <div className="w-full pr-4 space-y-2">

@@ -1,15 +1,12 @@
 "use client";
 
 import { colorClasses, colors } from "@/frontend/src/lib/colors";
-import { useOthers, useSelf } from "@/frontend/liveblocks.config";
-import { useState } from "react";
+import { useOthers } from "@/frontend/liveblocks.config";
 
 export function Avatars() {
     const users = useOthers();
-    // const currentUser = useSelf();
 
     const colorNames = Object.keys(colors);
-    // const [activeColors, setActiveColors] = useState([]);
 
     return (
         <div className="flex space-x-2">

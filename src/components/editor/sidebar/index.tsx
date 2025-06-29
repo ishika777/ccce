@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react'
-import { FilePlus, FolderPlus, Loader2, Search, Sparkles } from 'lucide-react'
+import { FilePlus, FolderPlus, Loader2, MonitorPlay, Search, Sparkles } from 'lucide-react'
 import SideBarFile from './file'
 import SidebarFolder from './folder'
 import { TFile, TFolder, TTab } from '@/frontend/src/lib/types'
@@ -8,6 +8,8 @@ import New from './new'
 import { Socket } from 'socket.io-client'
 import { getFilesInFolder, validateName } from '@/frontend/src/lib/utils'
 import { toast } from 'sonner'
+import { Button } from '../../ui/button'
+import { Switch } from '../../ui/switch'
 
 const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree, tree, ai,setAi }: {
     folderTree: (TFile | TFolder)[]
@@ -28,6 +30,8 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
 
 
     const toggleFolder = (folderId: string) => {
+
+        if(expandedFolders){} //just for build
 
         setExpandedFolders((prev) => {
             const updated = new Set(prev);
@@ -153,10 +157,7 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
                                     <New
                                         type={creatingNew}
                                         stopEditing={() => setCreatingNew(null)}
-                                        socket={socket}
                                         createNew={createNew}
-                                        pendingCreate={pendingCreate}
-                                        setPendingCreate={setPendingCreate}
                                     />
                                 )
                             }
@@ -218,11 +219,11 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
                             ctrl+G
                         </span>
                     </div>
-                    {/* <CustomToggle value={ai} setValue={setAi} /> */}
+                    <Switch checked={ai} onCheckedChange={setAi} />
                 </div>
-                {/* <Button className="w-full">
-                    <MonitorPlay className="w-4 h-4 mr-2" /> Run
-                </Button> */}
+                <Button className="w-full">
+                    <MonitorPlay   className="w-4 h-4 mr-2" /> Run
+                </Button>
             </div>
         </div>
     )

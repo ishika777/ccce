@@ -9,16 +9,30 @@ import { Pencil, Users } from 'lucide-react'
 import { Button } from '../../ui/button'
 import ShareVirtualboxModal from './share'
 import { Avatars } from '../live/avatars'
+import { notFound } from 'next/navigation'
 
-const EditorNavbar = ({ userData, virtualBox }: {
+const EditorNavbar = ({ userData, 
+    virtualBox,
+     fetchData,
+    shared,
+    allUsers,
+ }: {
     userData: UserType
     virtualBox: VirtualBoxType
+     fetchData: () => void
+        shared: UserType[]
+        allUsers: UserType[]
 }) => {
 
     const [isEditOpen, setIsEditOpen] = useState<boolean>(false);
     const [isShareOpen, setIsShareOpen] = useState<boolean>(false);
     
     const isOwner = virtualBox.userId === userData.id;
+    const isSharedUser = shared?.some((utv) => utv.id === userData.id)
+
+    if(!isOwner && !isSharedUser){
+        return notFound();
+    }
 
     return (
         <>
@@ -34,6 +48,9 @@ const EditorNavbar = ({ userData, virtualBox }: {
                 setOpen={setIsShareOpen}
                 data={virtualBox}
                 userId={userData.id}
+                fetchData={fetchData}
+                shared={shared}
+                allUsers={allUsers}
             />
             <div className='h-12 px-2 w-full border-b border-border flex items-center justify-between'>
                 <div className='flex items-center space-x-4'>
