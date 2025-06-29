@@ -187,7 +187,7 @@ const CodeEditor = ({ userData, virtualBox }: {
             socket.off("terminalResponse", onTerminalResponse);
             socket.off("disableAccess", onDisableAccess);
         }
-    }, [terminals, socket])
+    }, [terminals, socket, closingTerminal])
 
 
     const handleEditorMount: OnMount = (editor, monaco) => {
@@ -269,7 +269,7 @@ const CodeEditor = ({ userData, virtualBox }: {
 
         const yDoc = new Y.Doc();
         const yText: Y.Text = yDoc.getText("monaco");
-        const yProvider: any = new LiveblocksYjsProvider(room, yDoc);
+        const yProvider: LiveblocksYjsProvider = new LiveblocksYjsProvider(room, yDoc);
 
         const onSync = (isSynced: boolean) => {
             if (isSynced) {
@@ -296,7 +296,7 @@ const CodeEditor = ({ userData, virtualBox }: {
             yText,
             model,
             new Set([editorRef]),
-            yProvider.awareness as Awareness
+            yProvider.awareness as unknown as Awareness
         );
 
         return () => {
@@ -383,7 +383,7 @@ const CodeEditor = ({ userData, virtualBox }: {
 
 
         }
-    }, [generate.show, activeId, router, tabs])
+    }, [generate.show, activeId, router, tabs, ai, cursorLine, editorRef, generate.id, generate.pref, generate.widget])
 
     useEffect(() => {
         if (decorations.options.length === 0) {
@@ -405,7 +405,7 @@ const CodeEditor = ({ userData, virtualBox }: {
                 }
             })
         }
-    }, [decorations.options, ai, cursorLine, editorRef, generate.id, generate.pref, generate.widget])
+    }, [decorations.options, ai, cursorLine, editorRef, generate.id, generate.pref, generate.widget, decorations.instance])
 
 
 
@@ -479,7 +479,7 @@ const CodeEditor = ({ userData, virtualBox }: {
         return () => {
             document.removeEventListener("keydown", down);
         };
-    }, [tabs, activeId]);
+    }, [tabs, activeId, editorRef, socket]);
 
 
 
@@ -572,7 +572,7 @@ const CodeEditor = ({ userData, virtualBox }: {
                             socket={socket}
 
                             data={{
-                                filePath: tabs.find((t) => t.id === activeId)?.fullPath!,
+                                filePath: tabs.find((t) => t.id === activeId)?.fullPath ?? "",
                                 code: editorRef?.getValue() ?? "",
                                 line: generate.line
                             }}
