@@ -15,11 +15,12 @@ const DashBoardRoute = async () => {
     let dbUser;
     try {
         dbUser = await fetchUserById(user.id);
+        console.log(dbUser)
     } catch (error: unknown) {
         if (error instanceof Error) {
-            toast.error(error.message);
+            console.log(error.message);
         } else {
-            toast.error("An unknown error occurred.");
+            console.log("An unknown error occurred.");
         }
     }
     if (!dbUser) {

@@ -11,7 +11,7 @@ import { toast } from 'sonner'
 import { Button } from '../../ui/button'
 import { Switch } from '../../ui/switch'
 
-const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree, tree, ai,setAi }: {
+const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree, tree }: {
     folderTree: (TFile | TFolder)[]
     selectFile: (tab: TTab) => void
     socket: Socket
@@ -19,8 +19,6 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
     userId: string
     tree: (TFile | TFolder)[]
     setTree: (folderTree: (TFile | TFolder)[]) => void
-    ai: boolean;
-    setAi: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
 
     const [creatingNew, setCreatingNew] = useState<"file" | "folder" | null>(null);
@@ -48,8 +46,11 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
 
 
     const createNew = (name: string, type: "file" | "folder"): boolean => {
+
         const path = selectedFolder ? selectedFolder : `${userId}/${virtualBoxId}`;
+
         const files: { file: string[]; folder: string[] } = getFilesInFolder(tree, path);
+        
         const isDuplicate = type === "file"
             ? files.file.includes(name)
             : files.folder.includes(name);
@@ -95,7 +96,6 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
 
     const handleRename = (id: string, fullPath: string, newName: string, type: "file" | "folder") => {
         const currName = fullPath.split("/").pop() as string;
-        console.log(validateName(newName, currName, type))
         socket.emit("rename", fullPath, newName, (success: boolean, error: string | null, pathMap: Record<string, string>, resTree: (TFile | TFolder)[]) => {
             if (success) {
                 setTree(resTree);
@@ -212,14 +212,13 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
                 <div className="flex items-center justify-between w-full">
                     <div className="flex items-center mt-4">
                         <Sparkles
-                            className={`h-4 w-4 mr-2 ${ai ? "text-indigo-500" : "text-muted-foreground"}`}
+                            className={`h-4 w-4 mr-2 text-indigo-500}`}
                         />
                         Copilot
                         <span className="font-mono text-muted-foreground inline-block ml-1.5 text-xs leading-none border border-b-2 border-muted-foreground py-1 px-1.5 rounded-md">
-                            ctrl+G
+                            ctrl+M
                         </span>
                     </div>
-                    <Switch checked={ai} onCheckedChange={setAi} />
                 </div>
                 <Button className="w-full">
                     <MonitorPlay   className="w-4 h-4 mr-2" /> Run

@@ -1,24 +1,27 @@
-import { currentUser } from "@clerk/nextjs/server"
 import { redirect } from "next/navigation"
 import { createUser, fetchUserById } from "@/frontend/actions/user-actions"
-import { toast } from "sonner"
+import { useUser } from "@clerk/nextjs"
+import { auth, clerkClient } from "@clerk/nextjs/server";
 
 const AppAuthLayout = async ({ children }: { children: React.ReactNode }) => {
 
-    const user = await currentUser()
+      const { userId } = await auth();
+      if (!userId) {
+          redirect("/");
+      }
 
-    if (!user) {
-        redirect(`/`)
-    }
+      
+      const client = await clerkClient();
+      const user = await client.users.getUser(userId);
 
     let dbUser;
     try {
-        dbUser = await fetchUserById(user.id);
+        dbUser = await fetchUserById(userId);
     } catch (error: unknown) {
         if (error instanceof Error) {
-            toast.error(error.message);
+            console.log(error.message);
         } else {
-            toast.error("An unknown error occurred.");
+            console.log("An unknown error occurred.");
         }
     }
 
@@ -32,12 +35,12 @@ const AppAuthLayout = async ({ children }: { children: React.ReactNode }) => {
             const newUser = await createUser(data);
             console.log(newUser)
         } catch (error: unknown) {
-        if (error instanceof Error) {
-            toast.error(error.message);
-        } else {
-            toast.error("An unknown error occurred.");
+            if (error instanceof Error) {
+                console.log(error.message);
+            } else {
+                console.log("An unknown error occurred.");
+            }
         }
-    }
     }
 
 

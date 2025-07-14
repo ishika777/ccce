@@ -10,7 +10,6 @@ import { UserType, VirtualBoxType } from "../../lib/types"
 import { useSearchParams } from "next/navigation"
 import AboutModal from "./about"
 import { toast } from "sonner"
-import { getVirtualBoxesSharedToMe } from "@/frontend/actions/virtualBox-actions"
 
 type TScreen = "projects" | "shared" | "settings" | "search";
 
@@ -21,18 +20,6 @@ const Dashboard = ({ userData, virtualBoxList }: {
     const [screen, setScreen] = useState<TScreen>("projects")
     const [newProjectModalOpen, setNewProjectModalOpen] = useState<boolean>(false)
     const [aboutModalOpen, setAboutModalOpen] = useState(false);
-
-    const [shared, setShared] = useState([]);
-
-
-    useEffect(() => {
-        const fetchData = async() => {
-            const res = await getVirtualBoxesSharedToMe(userData.id);
-            setShared(res)
-        }
-        fetchData();
-    }, [userData.id])
-
 
 
     const activeScreen = (s: TScreen) => {
@@ -89,7 +76,7 @@ const Dashboard = ({ userData, virtualBoxList }: {
                 }
                 {
                     screen === "shared" && (
-                        <DashboardSharedPage shared={shared} />
+                        <DashboardSharedPage shared={userData.usersToVirtualboxes} />
                     )
                 }
 

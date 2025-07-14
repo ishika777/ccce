@@ -1,7 +1,7 @@
 // "use client"
 import ProjectCard from "./projectCard";
 import ProjectCardDropdown from "./projectCard/dropdown";
-import { Clock, Globe, Lock, Trash2 } from "lucide-react";
+import { Clock, Globe, Lock, Trash2, Users2 } from "lucide-react";
 import Image from "next/image";
 import { UserType, VirtualBoxType } from "../../lib/types";
 import { changeVisibility, deleteAllVirtualBox, deleteVirtualBox } from "@/frontend/actions/virtualBox-actions";
@@ -33,13 +33,13 @@ const DashboardProjects = ({ userData, virtualboxes, q }: {
             await router.refresh();
             toast.success(res.message);
 
-        }catch (error: unknown) {
-        if (error instanceof Error) {
-            toast.error(error.message);
-        } else {
-            toast.error("An unknown error occurred.");
-        }
-    } finally {
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                toast.error(error.message);
+            } else {
+                toast.error("An unknown error occurred.");
+            }
+        } finally {
             setIsDeletingAll(false);
             setOpenDeleteAll(false);
         }
@@ -55,13 +55,13 @@ const DashboardProjects = ({ userData, virtualboxes, q }: {
             await router.refresh();
             toast.success(res.message);
 
-        }catch (error: unknown) {
-        if (error instanceof Error) {
-            toast.error(error.message);
-        } else {
-            toast.error("An unknown error occurred.");
-        }
-    } finally {
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                toast.error(error.message);
+            } else {
+                toast.error("An unknown error occurred.");
+            }
+        } finally {
             setIsDeleting(false);
             setOpenDelete(false);
         }
@@ -75,13 +75,13 @@ const DashboardProjects = ({ userData, virtualboxes, q }: {
             const res = await changeVisibility(virtualbox.id, userData.id, newVisibility);
             await router.refresh();
             toast.success(res.message);
-        }catch (error: unknown) {
-        if (error instanceof Error) {
-            toast.error(error.message);
-        } else {
-            toast.error("An unknown error occurred.");
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                toast.error(error.message);
+            } else {
+                toast.error("An unknown error occurred.");
+            }
         }
-    }
     };
 
     return (
@@ -144,24 +144,27 @@ const DashboardProjects = ({ userData, virtualboxes, q }: {
                                 />
                             </div>
 
-                            <div className="flex flex-col text-muted-foreground space-y-0.5 text-sm">
-                                <div className="flex items-center">
-                                    {virtualbox.visibility === "public" ? (
-                                        <>
-                                            <Globe className="mr-2 h-4 w-4" />
-                                            <span>Public</span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Lock className="mr-2 h-4 w-4" />
-                                            <span>Private</span>
-                                        </>
-                                    )}
-                                </div>
-                                <div className="flex items-center">
-                                    <Clock className="w-3 h-3 mr-2" /> 3d ago
+                            <div className="flex items-start justify-between">
+                                <div className="flex flex-col text-muted-foreground space-y-0.5 text-sm">
+                                    <div className="flex items-center">
+                                        {virtualbox.visibility === "public" ? (
+                                            <>
+                                                <Globe className="mr-2 h-4 w-4" />
+                                                <span>Public</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Lock className="mr-2 h-4 w-4" />
+                                                <span>Private</span>
+                                            </>
+                                        )}
+                                    </div>
+                                    <div className="flex items-center">
+                                        <Clock className="w-3 h-3 mr-2" /> 3d ago
+                                    </div>
                                 </div>
                             </div>
+
                         </ProjectCard>
                     );
                 })}

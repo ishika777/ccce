@@ -7,18 +7,18 @@ export type UserType = {
     usersToVirtualboxes: UsersToVirtualBoxesType[];
 };
 
-export type SharedUserType = {
-    id: string;
-    name: string;
-    type: "react" | "node";
-    author: {
-            id: string;
-            name: string;
-            email: string;
-            image: string;
-        };
-    sharedOn: Date;
-}
+// export type SharedUserType = {
+//     id: string;
+//     name: string;
+//     type: "react" | "node";
+//     author: {
+//         id: string;
+//         name: string;
+//         email: string;
+//         image: string;
+//     };
+//     sharedOn: Date;
+// }
 
 export type VirtualBoxType = {
     id: string;
@@ -30,8 +30,10 @@ export type VirtualBoxType = {
 };
 
 export type UsersToVirtualBoxesType = {
-    userId: string;
-    virtualboxId: string;
+    sharedTo: string,
+    virtualboxId: string,
+    sharedOn: string,
+    sharedBy: string
 };
 
 export type TFolder = {

@@ -3,7 +3,6 @@ import { colors } from "@/frontend/src/lib/colors";
 import { UsersToVirtualBoxesType, VirtualBoxType } from "@/frontend/src/lib/types";
 import { currentUser } from "@clerk/nextjs/server";
 import { Liveblocks } from "@liveblocks/node";
-// import { NextRequest } from "next/server";
 import { toast } from "sonner";
 
 const liveblocks = new Liveblocks({
@@ -28,16 +27,12 @@ export async function POST() {
         }
     }
 
-
     if (!user) {
         return new Response("User not found", { status: 404 });
     }
 
     const colorNames = Object.keys(colors);
-    const randomColor = colorNames[
-        Math.floor(Math.random() * colorNames.length)
-    ] as keyof typeof colors;
-    // const code = colors[randomColor];
+    const randomColor = colorNames[Math.floor(Math.random() * colorNames.length)] as keyof typeof colors;
 
     const session = liveblocks.prepareSession(user.id, {
         userInfo: {
@@ -48,12 +43,15 @@ export async function POST() {
         },
     });
 
-    user?.virtualbox?.forEach((virtualbox: VirtualBoxType) => {
+
+    user?.virtualBox.map((virtualbox: VirtualBoxType) => {
+        console.log("Allowed access vb:", user.email);
         session.allow(`${virtualbox.id}`, session.FULL_ACCESS);
     });
 
-    user?.usersToVirtualboxes?.forEach((userToVirtualbox: UsersToVirtualBoxesType) => {
-        session.allow(`${userToVirtualbox.virtualboxId}`, session.FULL_ACCESS);
+    user?.usersToVirtualboxes?.map((uvb: UsersToVirtualBoxesType) => {
+        console.log("Allowed access uvb:",  user.email);
+        session.allow(`${uvb.virtualboxId}`, session.FULL_ACCESS);
     });
 
 

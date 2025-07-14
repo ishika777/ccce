@@ -14,8 +14,6 @@ export default function GenerateInput({
     socket,
     data,
     editor,
-    cancel,
-    submit,
     width,
     onExpand,
     onAccept,
@@ -30,8 +28,6 @@ export default function GenerateInput({
     editor: {
         language: string;
     };
-    cancel: () => void;
-    submit: (input: string) => void;
     width: number;
     onExpand: () => void;
     onAccept: (code: string) => void;
@@ -60,8 +56,6 @@ export default function GenerateInput({
             return;
         }
 
-        cancel()
-        submit("dw")
 
         setCode("");
         setLoading({ generate: !regenerate, regenerate });
@@ -103,7 +97,7 @@ export default function GenerateInput({
             onExpand();
             setLoading({ generate: false, regenerate: false });
         }
-    }, [code, onExpand]);
+    }, [code]);
 
     return (
         <div className="w-full pr-4 space-y-2">
@@ -121,7 +115,7 @@ export default function GenerateInput({
                     size={"sm"}
                     disabled={loading.generate || loading.regenerate || input === ""}
                     onClick={() => handleGenerate({})}
-                    className="text-sm"
+                    className="text-sm cursor-pointer"
                 >
                     {loading.generate ? (
                         <>
@@ -184,7 +178,7 @@ export default function GenerateInput({
                             disabled={loading.generate || loading.regenerate}
                             variant={"outline"}
                             size={"sm"}
-                            className="bg-transparent border-muted-foreground"
+                            className="bg-transparent border-muted-foreground cursor-pointer"
                         >
                             {loading.regenerate ? (
                                 <>

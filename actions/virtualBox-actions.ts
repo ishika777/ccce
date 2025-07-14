@@ -12,7 +12,14 @@ const BASE_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/virtualbox`;
 //         toast.error(error.response?.data?.message || "Failed to create virtual box");
 //     }
 // };
-
+export const getVirtualBoxById = async (id: string) => {
+    try {
+        const res = await axios.get(`${BASE_URL}/id/${id}`);
+        return res.data.virtualBox;
+    } catch (error: any) {
+        throw error.response?.data?.message || error.message || "Failed to fetch shared users";
+    }
+};
 
 export const createVirtualBox = async (data: {
     userId: string;

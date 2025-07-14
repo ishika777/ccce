@@ -1,3 +1,4 @@
+"use client"
 import {
     Table,
     TableBody,
@@ -10,11 +11,47 @@ import Image from "next/image";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { SharedUserType } from "../../lib/types";
+import { UsersToVirtualBoxesType, UserType, VirtualBoxType } from "../../lib/types";
 import { Avatar } from "../ui/avatar";
+import { useEffect, useState } from "react";
+import { getVirtualBoxById } from "@/frontend/actions/virtualBox-actions";
+import { fetchUserById } from "@/frontend/actions/user-actions";
 
 
-const DashboardSharedPage = ({ shared }: { shared: SharedUserType[] }) => {
+const DashboardSharedPage = ({ shared }: { shared: UsersToVirtualBoxesType[] }) => {
+
+
+    const [data, setData] = useState<{
+        virtualBox: VirtualBoxType,
+        user: UserType,
+        sharedOn: string
+    }[]>([]);
+
+    const [loading, setLoading] = useState<boolean>(false);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            setLoading(true);
+            shared.map(async (data) => {
+                const vb = await getVirtualBoxById(data.virtualboxId);
+                const user = await fetchUserById(data.sharedBy);
+                setData((prev) => {
+                    return [
+                        ...prev, {
+                            virtualBox: vb,
+                            user,
+                            sharedOn: data.sharedOn
+                        }
+                    ]
+                })
+            })
+            setLoading(false);
+        }
+        fetchData()
+        console.log(shared)
+    }, [])
+
+
     return (
         <div className="grow p-4 flex flex-col">
             <div className="text-xl font-medium mb-8">Shared With Me</div>
@@ -30,43 +67,51 @@ const DashboardSharedPage = ({ shared }: { shared: SharedUserType[] }) => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {shared.map((virtualbox) => (
-                                <TableRow key={virtualbox.id}>
+                            {
+                                loading && (
+                                    <div>loading...</div>
+                                )
+                            }
+                            {!loading && data.map((item, idx) => (
+                                <TableRow key={idx}>
                                     <TableCell>
                                         <div className="font-medium flex items-center">
                                             <Image
                                                 src={
-                                                    virtualbox.type === "react"
+                                                    item.virtualBox.type === "react"
                                                         ? "/project-icons/react.svg"
-                                                        : "/project-icons/node-svg"
+                                                        : "/project-icons/node.svg"
                                                 }
                                                 width={20}
                                                 height={20}
                                                 className="mr-2"
                                                 alt=""
                                             />
-                                            {virtualbox.name}
+                                            <span className="text-lg">
+                                                {item.virtualBox.name}
+                                            </span>
                                         </div>
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex items-center">
-                                            <div className="h-4 w-4 bg-red-500 rounded-full mr-2">
+                                            <div className="h-3 w-3 bg-red-500 rounded-full mr-2">
                                             </div>
-                                            <div className="font-semibold text-lg">
-                                                Ishika
+                                            <div>
+                                                <div className="font-semibold text-md">
+                                                    {item.user.name}
+                                                </div>
+                                                <span>{item.user.email}</span>
                                             </div>
-                                            <Avatar className="mr-2">
-                                                {virtualbox.author.name}
-                                            </Avatar>
-                                            {virtualbox.author.name}
                                         </div>
                                     </TableCell>
                                     <TableCell>
-                                        {new Date(virtualbox.sharedOn).toLocaleDateString()}
-                                        {new Date().toLocaleDateString()}
+                                        {new Date(item.sharedOn).toLocaleString("en-IN", {
+                                            dateStyle: "medium",
+                                            timeStyle: "short",
+                                        })}
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <Link href={`/code/${virtualbox.id}`}>
+                                        <Link href={`/code/${item.virtualBox.id}`}>
                                             <Button>
                                                 Open <ChevronRight className="h-4 w-4 ml-2" />
                                             </Button>

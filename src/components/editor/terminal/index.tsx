@@ -8,84 +8,91 @@ import "./xterm.css";
 import { Loader2 } from "lucide-react";
 
 export default function EditorTerminal({
-    visible,
-    id,
     socket,
-    term,
-    setTerm,
+    terminal,
+    setTerminal,
 }: {
-    visible: boolean;
-    id: string;
     socket: Socket;
-    term: Terminal | null;
-    setTerm: (term: Terminal) => void;
+    terminal: {
+        id: string;
+        terminal: Terminal | null;
+    };
+    setTerminal: React.Dispatch<
+        React.SetStateAction<{ id: string; terminal: Terminal | null }>
+    >;
 }) {
-    const terminalRef = useRef(null);
+    const terminalRef = useRef<HTMLDivElement | null>(null);
+    const xtermRef = useRef<Terminal | null>(null);
 
     useEffect(() => {
-        if (!terminalRef.current) return;
+        if (!terminalRef.current || xtermRef.current) return;
 
-        if (term) return;
-
-        const terminal = new Terminal({
+        const term = new Terminal({
             cursorBlink: true,
+            cursorWidth: 1,
             theme: {
-                background: "#262626",
+                background: "#1e1e1e",
+                foreground: "#cccccc",
+                cursor: "#00ff00",
             },
-            fontSize: 14,
-            fontFamily: "var(--font-geist-mono)",
-            lineHeight: 1.5,
-            letterSpacing: 0,
+            fontSize: 12,
+            fontWeight: 10,
+            fontFamily: "Consolas",
+            lineHeight: 1,
         });
 
-        setTerm(terminal);
-
-        return () => {
-            if (terminal) terminal.dispose();
-        };
-    }, [term, setTerm]);
-
-    useEffect(() => {
-        if (!term) return;
-
-        if (!terminalRef.current) return;
-
         const fitAddon = new FitAddon();
-
         term.loadAddon(fitAddon);
+
         term.open(terminalRef.current);
         fitAddon.fit();
 
-        const disposableOnData = term.onData((data) => {
-            socket.emit("terminalData", id, data);
+        // Send terminal input to backend
+        const onData = term.onData((data) => {
+            socket.emit("terminal-data", terminal.id, data);
         });
 
-        const disposableOnResize = term.onResize((dimensions) => {
+        // Handle resize
+        const onResize = term.onResize(() => {
             fitAddon.fit();
-            socket.emit("terminalResize", dimensions);
+            socket.emit("terminal-resize", term.rows, term.cols);
         });
 
-        // socket.emit("terminalData", "\n");
+        // Store the terminal reference globally
+        xtermRef.current = term;
+
+        // Set the terminal in parent state
+        setTerminal({ id: terminal.id, terminal: term });
 
         return () => {
-            disposableOnData.dispose();
-            disposableOnResize.dispose();
+            onData.dispose();
+            onResize.dispose();
+            term.dispose(); // Clean up on unmount
+            xtermRef.current = null;
         };
-    }, [term, socket, id]);
+    }, [socket, terminal.id, setTerminal]);
+
+    useEffect(() => {
+        const handleOutput = (output: string) => {
+            xtermRef.current?.write(output);
+        };
+
+        socket.on("terminal-response", handleOutput);
+
+        return () => {
+            socket.off("terminal-response", handleOutput);
+        };
+    }, [socket]);
 
     return (
         <div>
-            <div
-                ref={terminalRef}
-                style={{ display: visible ? "block" : "none" }}
-                className="w-full h-full text-left"
-            >
-                {term === null ? (
+            <div ref={terminalRef} className="w-full h-full text-left">
+                {!xtermRef.current && (
                     <div className="flex items-center text-muted-foreground p-2">
                         <Loader2 className="animate-spin mr-2 w-4 h-4" />
                         <span>Connecting to terminal....</span>
                     </div>
-                ) : null}
+                )}
             </div>
         </div>
     );

@@ -8,27 +8,38 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 export function Cursors({ yProvider }: { yProvider: TypedLiveblocksProvider }) {
+
     const userInfo = useSelf((me) => me.info);
 
     const [awarenessUsers, setAwarenessUsers] = useState<AwarenessList>([]);
 
     useEffect(() => {
-        const localUser: UserAwareness["user"] = userInfo!;
-        yProvider.awareness.setLocalStateField("user", localUser);
+    if (!userInfo || !yProvider) return;
 
-        function setUsers() {
-            setAwarenessUsers(
-                Array.from(yProvider.awareness.getStates()) as AwarenessList
-            );
-        }
+    // Set the local user's info in awareness state
+    const localUser: UserAwareness["user"] = {
+        name: userInfo.name,
+        email: userInfo.email,
+        color: userInfo.color, // e.g., "red", "blue", etc.
+    };
 
-        yProvider.awareness.on("change", setUsers);
-        setUsers();
+    yProvider.awareness.setLocalStateField("user", localUser);
 
-        return () => {
-            yProvider.awareness.off("change", setUsers);
-        };
-    }, [yProvider, userInfo]);
+    function updateAwarenessUsers() {
+        setAwarenessUsers(
+            Array.from(yProvider.awareness.getStates()) as AwarenessList
+        );
+    }
+
+    yProvider.awareness.on("change", updateAwarenessUsers);
+    updateAwarenessUsers(); // initial set
+
+    return () => {
+        yProvider.awareness.off("change", updateAwarenessUsers);
+    };
+}, [userInfo, yProvider]);
+
+
 
     const styleSheet = useMemo(() => {
         let cursorStyles = "";
@@ -37,12 +48,15 @@ export function Cursors({ yProvider }: { yProvider: TypedLiveblocksProvider }) {
             if (client?.user) {
                 cursorStyles += `
                 .yRemoteSelection-${clientId},
-                .yRemoteSelectionHead-${clientId}{
-                --user-color: ${colors[client.user?.color]}
+                .yRemoteSelectionHead-${clientId} {
+                    --user-color: ${colors[client.user.color]};
                 }
 
-                .yRemoteSelectionHead-${clientId}::after{
-                content: "${client.user.name}
+                .yRemoteSelectionHead-${clientId}::after {
+                    content: "${client.user.name
+                            ?.split(" ")
+                            .slice(0, 2)
+                            .map((letter) => letter[0].toUpperCase())}";
                 }
             `;
             }

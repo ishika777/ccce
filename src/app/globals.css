@@ -121,6 +121,24 @@
   }
 }
 
+
+.tab-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+
+.custom-scroll::-webkit-scrollbar{
+    visibility: hidden;
+}
+
+.custom-scroll{
+    scroll-behavior: smooth;
+    overflow-x: auto; 
+    scrollbar-width: none; 
+    -ms-overflow-style: none; 
+}
+
+
 .gradient-button-bg {
   background: radial-gradient(
     circle at top,
@@ -212,19 +230,7 @@
   z-index: 1000;
 }
 
-.tab-scroll::-webkit-scrollbar {
-  display: none;
-}
 
 
-.custom-scroll::-webkit-scrollbar{
-    visibility: hidden;
-}
 
-.custom-scroll{
-    scroll-behavior: smooth;
-    overflow-x: auto; 
-    scrollbar-width: none; 
-    -ms-overflow-style: none; 
-}
 
