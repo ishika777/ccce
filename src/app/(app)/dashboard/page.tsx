@@ -4,7 +4,6 @@ import { currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { VirtualBoxType } from '@/frontend/src/lib/types'
 import { fetchUserById } from '@/frontend/actions/user-actions'
-import { toast } from 'sonner'
 
 const DashBoardRoute = async () => {
     const user = await currentUser()

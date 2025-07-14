@@ -14,10 +14,10 @@ import { FileJson, Loader2, Plus, SquareTerminal, TerminalSquare } from "lucide-
 import { Terminal } from "@xterm/xterm";
 import { MonacoBinding } from "y-monaco";
 import { useClerk } from "@clerk/nextjs";
-import monaco, { editor } from "monaco-editor";
+import monaco from "monaco-editor";
 import * as Y from "yjs";
 import { BeforeMount, OnMount } from "@monaco-editor/react";
-import { getYjsProviderForRoom, LiveblocksYjsProvider } from "@liveblocks/yjs";
+import { LiveblocksYjsProvider } from "@liveblocks/yjs";
 import { TypedLiveblocksProvider, useRoom } from "@/frontend/liveblocks.config";
 
 import Sidebar from "./sidebar";
@@ -51,7 +51,6 @@ const CodeEditor = ({ userData, virtualBox }: {
     const clerk = useClerk()
     const router = useRouter()
     const room = useRoom();
-    const yProvider = getYjsProviderForRoom(room);
 
     const monacoRef = useRef<typeof monaco | null>(null)
     const [editorRef, setEditorRef] = useState<monaco.editor.IStandaloneCodeEditor>();
@@ -83,7 +82,7 @@ const CodeEditor = ({ userData, virtualBox }: {
 
 
     const [provider, setProvider] = useState<TypedLiveblocksProvider>();
-    const [ai, setAi] = useState<boolean>(true);
+    // const [ai, setAi] = useState<boolean>(true);
 
     const [tree, setTree] = useState<(TFolder | TFile)[]>([]);
     const [tabs, setTabs] = useState<TTab[]>([]);
@@ -262,15 +261,15 @@ const CodeEditor = ({ userData, virtualBox }: {
     }, [room, editorRef]);
 
     useEffect(() => {
-        if (!ai) {
-            setGenerate((prev) => {
-                return {
-                    ...prev,
-                    show: false,
-                };
-            });
-            return;
-        }
+        // if (!ai) {
+        //     setGenerate((prev) => {
+        //         return {
+        //             ...prev,
+        //             show: false,
+        //         };
+        //     });
+        //     return;
+        // }
         if (generate.show) {
             editorRef?.changeViewZones((changeAccessor: monaco.editor.IViewZoneChangeAccessor) => {
                 if (!generateRef.current) return;
@@ -332,7 +331,7 @@ const CodeEditor = ({ userData, virtualBox }: {
 
 
         }
-    }, [generate.show, activeId, tabs, ai, editorRef])
+    }, [generate.show, activeId, tabs, editorRef])
 
     const selectFile = (tab: TTab) => {
         if (tab.id === activeId) return;
@@ -443,7 +442,7 @@ const CodeEditor = ({ userData, virtualBox }: {
             <div ref={generateRef} className={`w-[${generate.width - 90}px]`}>
                 <div ref={generateWidgetRef} className="z-50">
                     {
-                        generate.show && ai && (
+                        generate.show && (
                             <GenerateInput
                                 user={userData}
                                 socket={socket}

@@ -42,7 +42,7 @@ export default function PreviewWindow({
 
     const handleRefresh = () => {
         toast.info("does nothing")
-        // setIframeKey((prev: number) => prev + 1);
+        setIframeKey((prev: number) => prev + 1);
         // setLoading(true);
     };
 

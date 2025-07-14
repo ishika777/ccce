@@ -1,7 +1,6 @@
-// "use client"
 import ProjectCard from "./projectCard";
 import ProjectCardDropdown from "./projectCard/dropdown";
-import { Clock, Globe, Lock, Trash2, Users2 } from "lucide-react";
+import { Clock, Globe, Lock, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { UserType, VirtualBoxType } from "../../lib/types";
 import { changeVisibility, deleteAllVirtualBox, deleteVirtualBox } from "@/frontend/actions/virtualBox-actions";

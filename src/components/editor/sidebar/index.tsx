@@ -9,7 +9,6 @@ import { Socket } from 'socket.io-client'
 import { getFilesInFolder, validateName } from '@/frontend/src/lib/utils'
 import { toast } from 'sonner'
 import { Button } from '../../ui/button'
-import { Switch } from '../../ui/switch'
 
 const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree, tree }: {
     folderTree: (TFile | TFolder)[]
@@ -95,7 +94,7 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
     }
 
     const handleRename = (id: string, fullPath: string, newName: string, type: "file" | "folder") => {
-        const currName = fullPath.split("/").pop() as string;
+        // const currName = fullPath.split("/").pop() as string;
         socket.emit("rename", fullPath, newName, (success: boolean, error: string | null, pathMap: Record<string, string>, resTree: (TFile | TFolder)[]) => {
             if (success) {
                 setTree(resTree);

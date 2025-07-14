@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation"
 import { createUser, fetchUserById } from "@/frontend/actions/user-actions"
-import { useUser } from "@clerk/nextjs"
 import { auth, clerkClient } from "@clerk/nextjs/server";
 
 const AppAuthLayout = async ({ children }: { children: React.ReactNode }) => {

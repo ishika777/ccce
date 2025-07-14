@@ -12,7 +12,6 @@ import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { UsersToVirtualBoxesType, UserType, VirtualBoxType } from "../../lib/types";
-import { Avatar } from "../ui/avatar";
 import { useEffect, useState } from "react";
 import { getVirtualBoxById } from "@/frontend/actions/virtualBox-actions";
 import { fetchUserById } from "@/frontend/actions/user-actions";
@@ -48,7 +47,6 @@ const DashboardSharedPage = ({ shared }: { shared: UsersToVirtualBoxesType[] }) 
             setLoading(false);
         }
         fetchData()
-        console.log(shared)
     }, [])
 
 

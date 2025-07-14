@@ -2,7 +2,7 @@
 import { Code2, FolderDot, HelpCircle, Plus, Settings, Users } from "lucide-react"
 import CustomButton from "../custom/CustomButton"
 import { Button } from "../ui/button"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import DashboardSharedPage from "./shared"
 import DashboardProjects from "./projects"
 import NewProjectModal from "./newProject"

@@ -1,7 +1,6 @@
 "use client";
 import { useClerk } from "@clerk/nextjs";
 import { UserType, VirtualBoxType } from "@/frontend/src/lib/types";
-// import CodeEditor from "..";
 import EditorNavbar from "../navbar";
 import { Room } from "../live/room";
 import { useCallback, useState } from "react";
