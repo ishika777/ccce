@@ -34,6 +34,7 @@ import { processFileType } from "../../lib/utils";
 
 import { createId } from "@paralleldrive/cuid2";
 import { getSocket } from "../../lib/socket";
+import { Awareness } from "y-protocols/awareness.js";
 
 const EditorTerminal = dynamic(() => import("./terminal"), {
     ssr: false,
@@ -251,7 +252,7 @@ const CodeEditor = ({ userData, virtualBox }: {
             yText,
             editorRef.getModel()!,
             new Set([editorRef]),
-            yProvider.awareness as any
+            yProvider.awareness as unknown as Awareness
         );
 
         return () => {
