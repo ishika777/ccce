@@ -25,7 +25,7 @@ const RemoveUserConfirmDialog = ({handleUnshare, open, setOpen, isDeleting, setI
                 <DialogHeader>
                     <DialogTitle>Are you sure?</DialogTitle>
                     <DialogDescription>
-                        This action cannot be undone. This will permanently delete the virtualBox.
+                        The user will no longer be able to access thi VirtualBox.
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter className="flex w-full justify-end gap-2 pt-4">

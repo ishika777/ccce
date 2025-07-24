@@ -45,8 +45,6 @@ export default function SharedUser({
         }
     }
 
-
-
     return (
         <>
             <RemoveUserConfirmDialog

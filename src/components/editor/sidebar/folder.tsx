@@ -46,18 +46,15 @@ const SidebarFolder = ({
     pendingCreate: boolean
     setPendingCreate: (create: boolean) => void
 }) => {
-
-
-
-
-    const [open, setOpen] = useState(false);
-    const folder = open ? getIconForOpenFolder(data.name) : getIconForFolder(data.name);
-
-    const [editing, setEditing] = useState<boolean>(false);
+    
     const inputRef = useRef<HTMLInputElement>(null)
-    const [pendingDelete, setPendingDelete] = useState<boolean>(false);
+    
+    const [open, setOpen] = useState(false);
+    const [editing, setEditing] = useState<boolean>(false);
     const [pendingEdit, setPendingEdit] = useState<boolean>(false);
-
+    const [pendingDelete, setPendingDelete] = useState<boolean>(false);
+    
+    const folder = open ? getIconForOpenFolder(data.name) : getIconForFolder(data.name);
 
     useEffect(() => {
         if (editing) {
@@ -82,9 +79,7 @@ const SidebarFolder = ({
     return (
         <>
             <ContextMenu>
-                <ContextMenuTrigger
-                    disabled={pendingDelete || pendingEdit}
-                >
+                <ContextMenuTrigger disabled={pendingDelete || pendingEdit}>
                     <div
                         className={` ${data.fullPath === selectedFolder ? "bg-secondary" : ""}   w-full flex items-center h-6 transition-colors hover:text-muted-foreground hover:bg-secondary cursor-pointer rounded-sm`}
                         onClick={() => {

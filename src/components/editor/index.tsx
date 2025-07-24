@@ -43,27 +43,27 @@ const EditorTerminal = dynamic(() => import("./terminal"), {
 const Editor = dynamic(() => import('@monaco-editor/react'), {
     ssr: false
 })
+
 const CodeEditor = ({ userData, virtualBox }: {
     userData: UserType
     virtualBox: VirtualBoxType
 }) => {
 
 
-    const clerk = useClerk()
-    const router = useRouter()
+    const clerk = useClerk();
+    const router = useRouter();
     const room = useRoom();
+    const socket = getSocket(userData.id, virtualBox.id);
 
-    const monacoRef = useRef<typeof monaco | null>(null)
-    const [editorRef, setEditorRef] = useState<monaco.editor.IStandaloneCodeEditor>();
+
     const generateRef = useRef<HTMLDivElement>(null)
-    const editorContainerRef = useRef<HTMLDivElement>(null)
+    const monacoRef = useRef<typeof monaco | null>(null)
     const generateWidgetRef = useRef<HTMLDivElement>(null)
+    const editorContainerRef = useRef<HTMLDivElement>(null)
     const previewPanelRef = useRef<ImperativePanelHandle>(null);
+    const [editorRef, setEditorRef] = useState<monaco.editor.IStandaloneCodeEditor>();
 
 
-
-    const [editorLanguage, setEditorLanguage] = useState<string | undefined>(undefined)
-    const [cursorLine, setCursorLine] = useState(0);
     const [generate, setGenerate] = useState<{
         show: boolean,
         id: string,
@@ -80,42 +80,41 @@ const CodeEditor = ({ userData, virtualBox }: {
         pref: []
 
     })
-
-
-    const [provider, setProvider] = useState<TypedLiveblocksProvider>();
-    // const [ai, setAi] = useState<boolean>(true);
-
-    const [tree, setTree] = useState<(TFolder | TFile)[]>([]);
-    const [tabs, setTabs] = useState<TTab[]>([]);
-    const [activeId, setActiveId] = useState<string>("");
-    const [activeFile, setActiveFile] = useState<string | null>(null)
-
-    const [terminal, setTerminal] = useState<{ id: string; terminal: Terminal | null; }>({ id: "", terminal: null });
-    const [creatingTerminal, setCreatingTerminal] = useState(false);
-    const [disableAccess, setDisableAccess] = useState({ isDisabled: false, message: "" });
-    const [previewLoading, setPreviewLoading] = useState<boolean>(false);
-    const [previewUrl, setPreviewUrl] = useState<string>("");
-
-
+    
+    
+    const [cursorLine, setCursorLine] = useState(0);
     const [iframeKey, setIframeKey] = useState<number>(0);
 
-    const [isPreviewCollapsed, setIsPreviewCollapsed] = useState(
-        virtualBox.type !== "react"
-    );
+    const [provider, setProvider] = useState<TypedLiveblocksProvider>();
+    
+    // const [ai, setAi] = useState<boolean>(true);
+    const [creatingTerminal, setCreatingTerminal] = useState(false);
+    const [previewLoading, setPreviewLoading] = useState<boolean>(false);
+    
+    const [tree, setTree] = useState<(TFolder | TFile)[]>([]);
+    const [tabs, setTabs] = useState<TTab[]>([]);
+    
+    const [activeFileId, setActiveFileId] = useState<string>("");
+    const [previewUrl, setPreviewUrl] = useState<string>("");
+    const [activeFileData, setActiveFileData] = useState<string | null>(null)
+    const [editorLanguage, setEditorLanguage] = useState<string | undefined>(undefined)
 
-    const socket = getSocket(userData.id, virtualBox.id);
+    const [terminal, setTerminal] = useState<{ id: string; terminal: Terminal | null; }>({ id: "", terminal: null });
+    
+    const [disableAccess, setDisableAccess] = useState({ isDisabled: false, message: "" });
 
+    const [isPreviewCollapsed, setIsPreviewCollapsed] = useState(virtualBox.type !== "react");
 
 
     useEffect(() => {
-        socket.emit("get-file-tree", virtualBox.userId, virtualBox.id)
+        if(socket){
+            socket.emit("get-file-tree", virtualBox.userId, virtualBox.id)
+        }
     }, [])
-
-
-
 
     useEffect(() => {
         if (typeof window === 'undefined') return;
+
         socket.connect()
 
         socket.on('connect_error', (err) => {
@@ -147,23 +146,19 @@ const CodeEditor = ({ userData, virtualBox }: {
 
     useEffect(() => {
         const onLoadedEvent = (tree: (TFolder | TFile)[]) => {
-            console.log(tree)
             setTree(tree);
         }
 
-        const onConnect = () => {
-        }
+        const onConnect = () => {}
 
-        const onDisconnect = () => {
-            setTerminal({ id: "", terminal: null })
-        }
+        const onDisconnect = () => { setTerminal({ id: "", terminal: null }) }
 
         const onTerminalResponse = (response: { id: string; data: string }) => {
             if (terminal?.terminal) {
                 setIframeKey((prev) => prev + 1);
                 terminal.terminal.write(response.data);
             } else {
-                console.warn("Terminal not ready yet", response.id);
+                toast.info(`Terminal not ready yet ${response.id}`);
             }
         };
 
@@ -175,9 +170,8 @@ const CodeEditor = ({ userData, virtualBox }: {
             });
         };
 
-        const onTerminalError = (message: string) => {
-            toast.error(message)
-        }
+        // if tried to create more that 1 terminal
+        const onTerminalError = (message: string) => { toast.error(message) }
 
         socket.on("connect", onConnect)
         socket.on("disconnect", onDisconnect)
@@ -212,7 +206,7 @@ const CodeEditor = ({ userData, virtualBox }: {
     }
 
     const handleEditorWillMount: BeforeMount = (monaco) => {
-        const myCommandId = 'myCustomCommand';
+        const myCommandId = 'generate';
 
         monaco.editor.registerCommand(myCommandId, () => {
             setGenerate((prev) => {
@@ -221,7 +215,6 @@ const CodeEditor = ({ userData, virtualBox }: {
                     show: !prev.show,
                 };
             });
-            console.log(generate)
 
         });
         monaco.editor.addKeybindingRules([{
@@ -238,12 +231,11 @@ const CodeEditor = ({ userData, virtualBox }: {
         const yText: Y.Text = yDoc.getText("monaco");
         const yProvider = new LiveblocksYjsProvider(room, yDoc);
 
-        // Set provider globally if needed
         setProvider(yProvider);
 
         yProvider.on("sync", (isSynced: boolean) => {
             if (isSynced && yText.toString() === "") {
-                yText.insert(0, editorRef.getValue() ?? activeFile ?? "");
+                yText.insert(0, editorRef.getValue() ?? activeFileData ?? "");
             }
         });
 
@@ -332,25 +324,26 @@ const CodeEditor = ({ userData, virtualBox }: {
 
 
         }
-    }, [generate.show, activeId, tabs, editorRef])
+    }, [generate.show, activeFileId, tabs, editorRef])
 
-    const selectFile = (tab: TTab) => {
-        if (tab.id === activeId) return;
+    const getFileData = (tab: TTab) => {
+        if (tab.id === activeFileId) return;
         const includes = tabs.find((t) => t.id === tab.id);
         setTabs((prev) => {
             if (includes) {
-                setActiveId(includes.id);
+                setActiveFileId(includes.id);
                 return prev;
+            }else{
+                return [...prev, tab]
             }
-            return [...prev, tab]
         })
 
         socket.emit("getFile", tab.fullPath, (response: string) => {
-            setActiveFile(response);
+            setActiveFileData(response);
         })
 
         setEditorLanguage(processFileType(tab.name))
-        setActiveId(tab.id)
+        setActiveFileId(tab.id)
     }
 
     const closeTab = (tab: TFile) => {
@@ -359,80 +352,76 @@ const CodeEditor = ({ userData, virtualBox }: {
 
         if (index === -1) return
 
-        const nextId = activeId === tab.id ?
+        const nextId = activeFileId === tab.id ?
             tabCount === 1 ? null :
                 index < tabCount - 1 ? tabs[index + 1].id :
-                    tabs[index - 1].id : activeId;
+                    tabs[index - 1].id : activeFileId;
 
 
-        const nextTab = tabs.find((t) => t.id === nextId)
-        if (nextTab) { }  //for build
         if (!nextId) {
-            setActiveId("");
+            setActiveFileId("");
         } else {
             const nextTab = tabs.find((t) => t.id === nextId);
-
-            if (nextTab) selectFile(nextTab);
+            if (nextTab) getFileData(nextTab);
         }
     }
 
     const saveFile = (e: KeyboardEvent) => {
-        if (e.key === "s" && (e.metaKey || e.ctrlKey)) {
+        //meta key for mac users
+        if ((e.key === "s" || e.key === "S") && (e.metaKey || e.ctrlKey)) {
             e.preventDefault();
 
-            const activeTab = tabs.find((t) => t.id === activeId);
+            const activeTab = tabs.find((t) => t.id === activeFileId);
             if (!activeTab?.saved) {
                 socket.emit("save-file", activeTab?.fullPath, editorRef?.getValue(), (success: boolean) => {
                     if (success) {
                         toast.success("file saved");
                         setTabs((prev) =>
-                            prev.map((tab) =>
-                                tab.id === activeId ? { ...tab, saved: true } : tab
-                            )
+                            prev.map((tab) => tab.id === activeFileId ? { ...tab, saved: true } : tab)
                         );
                     } else {
-                        toast.error("some error occured")
+                        toast.error("Couldn't save file")
                     }
                 })
             }
         }
     };
 
+    // ctrl S event handler
     useEffect(() => {
         document.addEventListener("keydown", saveFile);
         return () => {
             document.removeEventListener("keydown", saveFile);
         };
-    }, [tabs, activeId, editorRef, socket]);
-
-
+    }, [tabs, activeFileId, editorRef, socket]);
 
     const createTerminal = () => {
 
         setCreatingTerminal(true);
+        setPreviewLoading(true)
+
         const id = createId();
         setTerminal({ id, terminal: null })
-        setPreviewLoading(true)
 
         setTimeout(() => {
             socket.emit("create-terminal", id, userData.id, virtualBox.id, () => {
                 setCreatingTerminal(false);
+                setPreviewLoading(false)
             });
-        }, 1000);
+        }, 0);
     };
 
-    const closeTerminal = (term: { id: string; terminal: Terminal | null }) => {
-        socket.emit("close-terminal", term.id, virtualBox.id, () => {
+    const closeTerminal = () => {
+        socket.emit("close-terminal", terminal.id, virtualBox.id, () => {
             setTerminal({ id: "", terminal: null });
             setPreviewUrl("");
         });
     };
 
-
     if (disableAccess.isDisabled) {
         return (
             <>
-                <DisableAccessModal message={disableAccess.message} open={disableAccess.isDisabled} setOpen={() => { }} />
+                <DisableAccessModal message={disableAccess.message} open={disableAccess.isDisabled} />
             </>
         )
     }
@@ -447,16 +436,14 @@ const CodeEditor = ({ userData, virtualBox }: {
                             <GenerateInput
                                 user={userData}
                                 socket={socket}
-
                                 data={{
-                                    filePath: tabs.find((t) => t.id === activeId)?.fullPath ?? "",
+                                    filePath: tabs.find((t) => t.id === activeFileId)?.fullPath ?? "",
                                     code: editorRef?.getValue() ?? "",
                                     line: generate.line
                                 }}
                                 editor={{
                                     language: editorLanguage!
                                 }}
-
 
                                 width={generate.width - 90}
 
@@ -471,9 +458,6 @@ const CodeEditor = ({ userData, virtualBox }: {
                                     const updatedCode = lines.join("\n");
                                     editorRef?.setValue(updatedCode);
                                 }}
-
-
-
 
                                 onExpand={() => {
                                     editorRef?.changeViewZones((changeAccessor) => {
@@ -497,15 +481,17 @@ const CodeEditor = ({ userData, virtualBox }: {
                     }
                 </div>
             </div>
+
             <Sidebar
                 folderTree={tree}
-                selectFile={selectFile}
+                selectFile={getFileData}
                 socket={socket}
                 virtualBoxId={virtualBox.id}
                 userId={virtualBox.userId}
                 tree={tree}
                 setTree={setTree}
             />
+
             <ResizablePanelGroup direction="horizontal">
                 <ResizablePanel defaultSize={80} maxSize={80} minSize={30} className="flex flex-col p-1">
                     <div className="h-10 w-full flex gap-2 pt-1 px-2 custom-scroll">
@@ -514,8 +500,8 @@ const CodeEditor = ({ userData, virtualBox }: {
                                 <CustomTab
                                     saved={tab.saved}
                                     key={tab.id}
-                                    selected={activeId === tab.id}
-                                    onClick={() => selectFile(tab)}
+                                    selected={activeFileId === tab.id}
+                                    onClick={() => getFileData(tab)}
                                     onClose={() => closeTab(tab)}
                                 >
                                     <span className="text-xs font-semibold">{tab.name}</span>
@@ -525,7 +511,7 @@ const CodeEditor = ({ userData, virtualBox }: {
                     </div>
                     <div ref={editorContainerRef} className="grow w-full overflow-hidden rounded-lg">
                         {
-                            !activeId ? (
+                            !activeFileId ? (
                                 <>
                                     <div className="flex items-center w-full h-full justify-center text-xl font-medium text-secondary select-none">
                                         <FileJson className="w-6 h-6 mr-3" />
@@ -545,16 +531,16 @@ const CodeEditor = ({ userData, virtualBox }: {
                                             beforeMount={handleEditorWillMount}
                                             language={editorLanguage}
                                             onChange={(value) => {
-                                                if (value === activeFile) {
+                                                if (value === activeFileData) {
                                                     setTabs((prev) =>
                                                         prev.map((tab) =>
-                                                            tab.id === activeId ? { ...tab, saved: true } : tab
+                                                            tab.id === activeFileId ? { ...tab, saved: true } : tab
                                                         )
                                                     );
                                                 } else {
                                                     setTabs((prev) =>
                                                         prev.map((tab) =>
-                                                            tab.id === activeId ? { ...tab, saved: false } : tab
+                                                            tab.id === activeFileId ? { ...tab, saved: false } : tab
                                                         )
                                                     );
                                                 }
@@ -572,7 +558,7 @@ const CodeEditor = ({ userData, virtualBox }: {
                                                 fontFamily: "var(--font-geist-mono)",
                                                 fontSize: 12
                                             }}
-                                            value={activeFile ?? ""}
+                                            value={activeFileData ?? ""}
                                         />
                                     </>
                                 )
@@ -580,8 +566,11 @@ const CodeEditor = ({ userData, virtualBox }: {
                         }
                     </div>
                 </ResizablePanel>
+
                 <ResizableHandle />
+
                 <ResizablePanel defaultSize={20}>
+
                     <ResizablePanelGroup direction="vertical">
                         <ResizablePanel
                             ref={previewPanelRef}
@@ -615,8 +604,8 @@ const CodeEditor = ({ userData, virtualBox }: {
                                     terminal.id && (
                                         <CustomTab
                                             key={terminal.id}
-                                            onClick={() => { }}
-                                            onClose={() => closeTerminal(terminal)}
+                                            onClick={() => {}}
+                                            onClose={() => closeTerminal()}
                                             selected={true}
                                         >
                                             <SquareTerminal className="w-4 h-4" />
@@ -662,6 +651,7 @@ const CodeEditor = ({ userData, virtualBox }: {
                             )}
                         </ResizablePanel>
                     </ResizablePanelGroup>
+
                 </ResizablePanel>
             </ResizablePanelGroup>
         </>

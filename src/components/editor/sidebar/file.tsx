@@ -4,12 +4,7 @@ import { getIconForFile } from 'vscode-icons-js'
 import Image from 'next/image'
 import { TFile, TTab } from '@/frontend/src/lib/types'
 import { toast } from 'sonner'
-import {
-    ContextMenu,
-    ContextMenuContent,
-    ContextMenuItem,
-    ContextMenuTrigger,
-} from "@/frontend/src/components/ui/context-menu"
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/frontend/src/components/ui/context-menu"
 import { Loader2, Pencil, Trash2 } from 'lucide-react'
 import { validateName } from '@/frontend/src/lib/utils'
 
@@ -23,10 +18,12 @@ const SideBarFile = ({ data, selectFile, handleRename, deleteFileOrFolder }: {
 }) => {
 
     const [imgSrc, setImgSrc] = useState(`/icons/${getIconForFile(data.name)}`)
-    const [editing, setEditing] = useState<boolean>(false);
+    
     const inputRef = useRef<HTMLInputElement>(null)
-    const [pendingDelete, setPendingDelete] = useState<boolean>(false);
+
+    const [editing, setEditing] = useState<boolean>(false);
     const [pendingEdit, setPendingEdit] = useState<boolean>(false);
+    const [pendingDelete, setPendingDelete] = useState<boolean>(false);
 
     useEffect(() => {
         if (editing) {

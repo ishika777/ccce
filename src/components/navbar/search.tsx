@@ -11,9 +11,9 @@ const NavbarSearch = () => {
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
-            if(search){
+            if (search) {
                 router.push(`/dashboard?q=${search}`)
-            }else{
+            } else {
                 router.push(`/dashboard`)
             }
         }, 0)
@@ -25,13 +25,12 @@ const NavbarSearch = () => {
     return (
         <div className='relative h-9 w-44 flex items-center justify-start'>
             <Search className='w-4 h-4 absolute left-2 top-2 text-muted-foreground' />
-         
-                <Input
-                    placeholder='Search Projects'
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className='pl-8'
-                />
+            <Input
+                placeholder='Search Projects'
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className='pl-8'
+            />
         </div>
     )
 }

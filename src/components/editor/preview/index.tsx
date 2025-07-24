@@ -3,6 +3,24 @@ import { toast } from "sonner";
 import { Socket } from "socket.io-client";
 import { Link, RotateCw, UnfoldVertical, Loader } from "lucide-react"; // Assuming Loader is your loading animation component
 
+function PreviewButton({
+    children,
+    onClick,
+}: {
+    children: React.ReactNode;
+    onClick: () => void;
+}) {
+    return (
+        <div
+            className="p-0.5 h-5 w-5 ml-0.5 flex items-center justify-center transition-colors bg-transparent hover:bg-muted-foreground/25 cursor-pointer rounded-sm"
+            onClick={onClick}
+        >
+            {children}
+        </div>
+    );
+}
+
+
 export default function PreviewWindow({
     collapsed,
     open,
@@ -28,7 +46,7 @@ export default function PreviewWindow({
 
     useEffect(() => {
         const handlePreviewUrl = (url: string) => {
-            console.log(url)
+            toast.info(url)
             setPreviewUrl(url);
             setLoading(false);
         };
@@ -103,22 +121,5 @@ export default function PreviewWindow({
                 </div>
             )}
         </>
-    );
-}
-
-function PreviewButton({
-    children,
-    onClick,
-}: {
-    children: React.ReactNode;
-    onClick: () => void;
-}) {
-    return (
-        <div
-            className="p-0.5 h-5 w-5 ml-0.5 flex items-center justify-center transition-colors bg-transparent hover:bg-muted-foreground/25 cursor-pointer rounded-sm"
-            onClick={onClick}
-        >
-            {children}
-        </div>
     );
 }

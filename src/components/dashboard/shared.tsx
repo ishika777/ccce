@@ -73,7 +73,7 @@ const DashboardSharedPage = ({ shared }: { shared: UsersToVirtualBoxesType[] }) 
                             {!loading && data.map((item, idx) => (
                                 <TableRow key={idx}>
                                     <TableCell>
-                                        <div className="font-medium flex items-center">
+                                        <div className="flex items-center font-medium">
                                             <Image
                                                 src={
                                                     item.virtualBox.type === "react"
@@ -83,7 +83,7 @@ const DashboardSharedPage = ({ shared }: { shared: UsersToVirtualBoxesType[] }) 
                                                 width={20}
                                                 height={20}
                                                 className="mr-2"
-                                                alt=""
+                                                alt="icon"
                                             />
                                             <span className="text-lg">
                                                 {item.virtualBox.name}
@@ -92,8 +92,7 @@ const DashboardSharedPage = ({ shared }: { shared: UsersToVirtualBoxesType[] }) 
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex items-center">
-                                            <div className="h-3 w-3 bg-red-500 rounded-full mr-2">
-                                            </div>
+                                            <div className="h-3 w-3 bg-red-500 rounded-full mr-2"></div>
                                             <div>
                                                 <div className="font-semibold text-md">
                                                     {item.user.name}

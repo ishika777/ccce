@@ -12,13 +12,12 @@ import { useEffect } from "react";
 
 export default function DisableAccessModal({
     open,
-    setOpen,
     message,
 }: {
     open: boolean;
-    setOpen: (open: boolean) => void;
     message: string;
 }) {
+
     const router = useRouter();
 
     useEffect(() => {
@@ -30,8 +29,10 @@ export default function DisableAccessModal({
             return () => clearTimeout(timeout);
         }
     }, [open, router]);
+
+
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open}>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Live Collaboration Disabled</DialogTitle>

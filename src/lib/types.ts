@@ -7,19 +7,6 @@ export type UserType = {
     usersToVirtualboxes: UsersToVirtualBoxesType[];
 };
 
-// export type SharedUserType = {
-//     id: string;
-//     name: string;
-//     type: "react" | "node";
-//     author: {
-//         id: string;
-//         name: string;
-//         email: string;
-//         image: string;
-//     };
-//     sharedOn: Date;
-// }
-
 export type VirtualBoxType = {
     id: string;
     name: string;

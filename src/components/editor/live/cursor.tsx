@@ -9,38 +9,39 @@ import { useEffect, useMemo, useState } from "react";
 
 export function Cursors({ yProvider }: { yProvider: TypedLiveblocksProvider }) {
 
+      // Get user info from Liveblocks authentication endpoint
     const userInfo = useSelf((me) => me.info);
 
     const [awarenessUsers, setAwarenessUsers] = useState<AwarenessList>([]);
 
     useEffect(() => {
-    if (!userInfo || !yProvider) return;
+        if (!userInfo || !yProvider) return;
 
-    // Set the local user's info in awareness state
-    const localUser: UserAwareness["user"] = {
-        name: userInfo.name,
-        email: userInfo.email,
-        color: userInfo.color, // e.g., "red", "blue", etc.
-    };
+        // Set the local user's info in awareness state
+        const localUser: UserAwareness["user"] = {
+            name: userInfo.name,
+            email: userInfo.email,
+            color: userInfo.color,
+        };
 
-    yProvider.awareness.setLocalStateField("user", localUser);
+        yProvider.awareness.setLocalStateField("user", localUser);
 
-    function updateAwarenessUsers() {
-        setAwarenessUsers(
-            Array.from(yProvider.awareness.getStates()) as AwarenessList
-        );
-    }
+        function updateAwarenessUsers() {
+            setAwarenessUsers(
+                Array.from(yProvider.awareness.getStates()) as AwarenessList
+            );
+        }
 
-    yProvider.awareness.on("change", updateAwarenessUsers);
-    updateAwarenessUsers(); // initial set
+        yProvider.awareness.on("change", updateAwarenessUsers);
+        updateAwarenessUsers(); // initial set
 
-    return () => {
-        yProvider.awareness.off("change", updateAwarenessUsers);
-    };
-}, [userInfo, yProvider]);
+        return () => {
+            yProvider.awareness.off("change", updateAwarenessUsers);
+        };
+    }, [userInfo, yProvider]);
 
 
-
+  // Get user info from Liveblocks authentication endpoint
     const styleSheet = useMemo(() => {
         let cursorStyles = "";
 

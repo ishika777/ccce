@@ -94,7 +94,8 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
     }
 
     const handleRename = (id: string, fullPath: string, newName: string, type: "file" | "folder") => {
-        // const currName = fullPath.split("/").pop() as string;
+        
+        //name validation handled in SidebarFolder and SidebarFile
         socket.emit("rename", fullPath, newName, (success: boolean, error: string | null, pathMap: Record<string, string>, resTree: (TFile | TFolder)[]) => {
             if (success) {
                 setTree(resTree);
@@ -181,10 +182,12 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
                                 ) : (
                                     <SidebarFolder
                                         key={child.id}
+
                                         data={child}
                                         socket={socket}
 
                                         selectFile={selectFile}
+
                                         toggleFolder={toggleFolder}
 
                                         selectedFolder={selectedFolder}

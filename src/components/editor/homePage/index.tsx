@@ -10,14 +10,14 @@ import { toast } from "sonner";
 import dynamic from "next/dynamic";
 
 const CodeEditor = dynamic(() => import(".."), {
-  ssr: false,
+    ssr: false,
 });
 
 export default function EditorHomePage({ userData, virtualBox }: {
     userData: UserType
     virtualBox: VirtualBoxType
 }) {
-    const { loaded } = useClerk();  
+    const { loaded } = useClerk();
 
     const [shared, setShared] = useState<UserType[]>([]);
     const [allUsers, setAllUsers] = useState<UserType[]>([]);
@@ -31,7 +31,11 @@ export default function EditorHomePage({ userData, virtualBox }: {
                 const sharedUsers = res.data as UserType[];
 
                 const sharedEmails = sharedUsers.map(user => user.email);
+
+                //remmove already shared users from allUsers
                 let filteredUsers = allUsersData.filter(user => !sharedEmails.includes(user.email));
+
+                //remove self
                 filteredUsers = filteredUsers.filter(user => user.id !== userData.id);
 
                 setAllUsers(filteredUsers);
@@ -54,7 +58,8 @@ export default function EditorHomePage({ userData, virtualBox }: {
         <div className="flex w-screen flex-col h-screen bg-background">
             <Room id={virtualBox.id}>
                 <div className="h-12 flex">
-                    <EditorNavbar userData={userData}
+                    <EditorNavbar
+                        userData={userData}
                         virtualBox={virtualBox}
                         fetchData={fetchData}
                         shared={shared}

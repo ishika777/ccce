@@ -47,21 +47,16 @@ export default function EditorTerminal({
         term.open(terminalRef.current);
         fitAddon.fit();
 
-        // Send terminal input to backend
         const onData = term.onData((data) => {
             socket.emit("terminal-data", terminal.id, data);
         });
 
-        // Handle resize
         const onResize = term.onResize(() => {
             fitAddon.fit();
             socket.emit("terminal-resize", term.rows, term.cols);
         });
 
-        // Store the terminal reference globally
         xtermRef.current = term;
-
-        // Set the terminal in parent state
         setTerminal({ id: terminal.id, terminal: term });
 
         return () => {
@@ -71,6 +66,7 @@ export default function EditorTerminal({
             xtermRef.current = null;
         };
     }, [socket, terminal.id, setTerminal]);
+
 
     useEffect(() => {
         const handleOutput = (output: string) => {

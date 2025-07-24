@@ -26,12 +26,10 @@ const DashBoardRoute = async () => {
         redirect(`/`)
     }
 
-    const virtualBoxList = dbUser.virtualBox as VirtualBoxType[]
-
     return (
         <div>
             <Navbar userData={dbUser} />
-            <Dashboard userData={dbUser} virtualBoxList={virtualBoxList} />
+            <Dashboard userData={dbUser} virtualBoxList={dbUser.virtualBox} />
         </div>
     )
 }

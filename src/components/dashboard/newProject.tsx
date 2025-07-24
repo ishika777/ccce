@@ -9,27 +9,9 @@ import { Input } from "../ui/input";
 import { Loader2 } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from "../ui/dialog";
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "../ui/form";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "../ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import CustomButton from "../custom/CustomButton";
 import { createVirtualBox } from "@/frontend/actions/virtualBox-actions";
 import { toast } from "sonner";
@@ -123,7 +105,10 @@ export default function NewProjectModal({
 
     return (
         <Dialog open={open} onOpenChange={(open: boolean) => {
-            if (!loading) setOpen(open);
+            if (loading){
+                return
+            }
+            setOpen(!open);
         }}
         >
             <DialogContent>

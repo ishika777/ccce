@@ -18,9 +18,6 @@ export const processFileType = (file: string) => {
     return "plaintext"
 }
 
-export const decodeTerminalResponse = (buffer: Buffer): string => {
-    return buffer.toString("utf-8")
-}
 
 export function validateName(
     newName: string,

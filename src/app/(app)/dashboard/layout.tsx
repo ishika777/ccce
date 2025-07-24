@@ -4,14 +4,14 @@ import { auth, clerkClient } from "@clerk/nextjs/server";
 
 const AppAuthLayout = async ({ children }: { children: React.ReactNode }) => {
 
-      const { userId } = await auth();
-      if (!userId) {
-          redirect("/");
-      }
+    const { userId } = await auth();
+    if (!userId) {
+        redirect("/");
+    }
 
-      
-      const client = await clerkClient();
-      const user = await client.users.getUser(userId);
+
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
 
     let dbUser;
     try {

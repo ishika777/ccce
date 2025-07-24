@@ -162,7 +162,6 @@ const EditVirtualBoxModal = ({ open, setOpen, data, userId, virtualboxId }: {
                 <Button
                     disabled={loadingDelete}
                     onClick={onDelete}
-                    // variant={"destructive"}
                     className="w-full !bg-red-600 text-white"
                 >
                     {loadingDelete ? (

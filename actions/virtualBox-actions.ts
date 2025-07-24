@@ -95,16 +95,6 @@ export const fetchSharedUsers = async (userId: string) => {
     }
 };
 
-export const getVirtualBoxesSharedToMe = async (userId: string) => {
-    try {
-        const res = await axios.get(`${BASE_URL}/shared-to-me/${userId}`);
-        console.log(res.data);
-        return res.data;
-    } catch (error: any) {
-        throw error.response?.data?.message || error.message || "Failed to fetch shared users";
-    }
-}
-
 export const shareVirtualBox = async (virtualboxId: string, userId: string, email: string) => {
     try {
         const res = await axios.post(`${BASE_URL}/share`, { virtualboxId, shareById: userId, email });

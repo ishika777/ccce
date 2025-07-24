@@ -24,7 +24,7 @@ const Dashboard = ({ userData, virtualBoxList }: {
 
     const activeScreen = (s: TScreen) => {
         if (screen === s) return "justify-start"
-        else return "justify-start font-normal text-muted-foreground"
+        else return "justify-start text-muted-foreground"
     }
 
     const searchParams = useSearchParams();
@@ -47,6 +47,7 @@ const Dashboard = ({ userData, virtualBoxList }: {
                             <Plus className="w-4 h-4 mr-2" />
                             New Project
                         </CustomButton>
+
                         <Button variant={"ghost"} onClick={() => setScreen("projects")} className={activeScreen("projects")} >
                             <FolderDot className="w-4 h-4 mr-2" />
                             My Projects
