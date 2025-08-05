@@ -1,7 +1,7 @@
 "use client";
 
 import { useClerk } from "@clerk/nextjs";
-import { LogOut, Pencil, Sparkles } from "lucide-react";
+import { LogOut, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
     DropdownMenu,
