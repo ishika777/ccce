@@ -45,7 +45,9 @@ export default function EditorTerminal({
         term.loadAddon(fitAddon);
 
         term.open(terminalRef.current);
-        fitAddon.fit();
+        // setTimeout(() => {
+        //     fitAddon.fit();
+        // }, 0);
 
         const onData = term.onData((data) => {
             socket.emit("terminal-data", terminal.id, data);
@@ -66,6 +68,16 @@ export default function EditorTerminal({
             xtermRef.current = null;
         };
     }, [socket, terminal.id, setTerminal]);
+
+    useEffect(() => {
+        const handleResize = () => {
+            const fitAddon = new FitAddon();
+            fitAddon.fit();
+        }
+        window.addEventListener('resize', handleResize);
+
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
 
     useEffect(() => {

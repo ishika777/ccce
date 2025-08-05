@@ -108,7 +108,9 @@ const CodeEditor = ({ userData, virtualBox }: {
 
     useEffect(() => {
         if(socket){
-            socket.emit("get-file-tree", virtualBox.userId, virtualBox.id)
+            socket.emit("get-file-tree", virtualBox.userId, virtualBox.id, (error: string) => {
+                toast.error(error)
+            })
         }
     }, [])
 
@@ -404,9 +406,12 @@ const CodeEditor = ({ userData, virtualBox }: {
         setTerminal({ id, terminal: null })
 
         setTimeout(() => {
-            socket.emit("create-terminal", id, userData.id, virtualBox.id, () => {
+            socket.emit("create-terminal", id, userData.id, virtualBox.id, (error?: string) => {
                 setCreatingTerminal(false);
-                setPreviewLoading(false)
+                setPreviewLoading(false);
+                if(error){
+                    toast.error(error);
+                }
             });
         }, 0);
     };

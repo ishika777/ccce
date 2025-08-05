@@ -6,8 +6,11 @@ export const fetchAllUsers = async () => {
     try {
         const res = await axios.get(BASE_URL);
         return res.data.data;
-    } catch (error: any) {
-         throw error.response?.data?.message || error.message || "Failed to fetch users";
+        } catch (error: unknown) {
+            if (axios.isAxiosError(error)) {
+                throw error.response?.data?.message || error.message || "Failed to fetch users";
+            }
+            throw "Failed to fetch users";
         }
     };
 
@@ -15,9 +18,11 @@ export const fetchUserById = async (id: string) => {
     try {
         const res = await axios.get(`${BASE_URL}/${id}`);
         return res.data
-    } catch (error: any) {
-        throw error.response?.data?.message || error.message || "Failed to fetch user";
-        
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            throw error.response?.data?.message || error.message || "Failed to fetch user";
+        }
+        throw "Failed to fetch user";
     }
 };
 
@@ -31,7 +36,10 @@ export const createUser = async (data: dataType) => {
     try {
         const res = await axios.post(BASE_URL, {data});
         return res.data;
-    } catch (error: any) {
-        throw error.response?.data?.message || error.message || "Failed to create users";
+    } catch (error: unknown) {
+        if (axios.isAxiosError(error)) {
+            throw error.response?.data?.message || error.message || "Failed to create users";
+        }
+        throw "Failed to create users";
     }
 };
