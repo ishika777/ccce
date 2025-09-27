@@ -13,6 +13,8 @@ export const processFileType = (file: string) => {
 
     if (ext === "ts" || ext === "tsx") return "typescript"
     if (ext === "js" || ext === "jsx") return "javascript"
+    if (ext === "md") return "markdown"
+    if (ext === "py") return "python"
     if (ext) return ext;
 
     return "plaintext"

@@ -60,7 +60,7 @@ const CodeEditor = ({ userData, virtualBox }: {
     const generateWidgetRef = useRef<HTMLDivElement>(null)
     const editorContainerRef = useRef<HTMLDivElement>(null)
     const previewPanelRef = useRef<ImperativePanelHandle>(null);
-    
+
 
 
     const [editorRef, setEditorRef] = useState<monaco.editor.IStandaloneCodeEditor>();
@@ -106,7 +106,10 @@ const CodeEditor = ({ userData, virtualBox }: {
     const [isPreviewCollapsed, setIsPreviewCollapsed] = useState(virtualBox.type !== "react");
 
 
-    console.log(tabs)
+    const isInitialLoad = useRef(true);
+
+
+
 
 
     //get file tree on load
@@ -245,6 +248,7 @@ const CodeEditor = ({ userData, virtualBox }: {
             e.preventDefault();
 
             const activeTab = tabs.find((t) => t.id === activeFileId);
+
             if (!activeTab?.saved) {
                 socket.emit("save-file", activeTab?.fullPath, editorRef?.getValue(), (success: boolean) => {
                     if (success) {
@@ -363,35 +367,31 @@ const CodeEditor = ({ userData, virtualBox }: {
         return () => {
             document.removeEventListener("keydown", saveFile);
         };
-    }, [tabs, activeFileId, editorRef, socket, saveFile]);
-
+    }, [tabs, activeFileId, editorRef, socket]);
 
 
     const getFileData = (tab: TTab) => {
+
+        console.log("Getting file data for tab:", tab);
         if (tab.id === activeFileId) return;
-        const includes = tabs.find((t) => t.id === tab.id);
-        setTabs((prev) => {
-            if (includes) {
-                setActiveFileId(includes.id);
-                return prev;
-            } else {
-                return [...prev, tab]
-            }
-        })
 
+        const includes = tabs.some((t) => t.id === tab.id);
 
-        console.log(tabs)
+        if (!includes) {
+            setTabs((prev) => {
+                return [...prev, { ...tab, saved: true }]
+            })
+        }
+        setActiveFileId(tab.id)
 
         socket.emit("getFile", tab.fullPath, (response: string) => {
+            console.log("Received file data:", response);
+                 isInitialLoad.current = true;
             setActiveFileData(response);
+            setEditorLanguage(processFileType(tab.name))
         })
 
-        setEditorLanguage(processFileType(tab.name))
-        setActiveFileId(tab.id)
     }
-
-
-
 
     const closeTab = (tab: TFile) => {
         const tabCount = tabs.length;
@@ -399,11 +399,15 @@ const CodeEditor = ({ userData, virtualBox }: {
 
         if (index === -1) return
 
-        const nextId = activeFileId === tab.id ?
-            tabCount === 1 ? null :
-                index < tabCount - 1 ? tabs[index + 1].id :
-                    tabs[index - 1].id : activeFileId;
+        const nextId = activeFileId === tab.id
+            ? tabCount === 1
+                ? null
+                : index < tabCount - 1
+                    ? tabs[index + 1].id
+                    : tabs[index - 1].id
+            : activeFileId;
 
+        setTabs((prev) => prev.filter((t) => t.id !== tab.id))
 
         if (!nextId) {
             setActiveFileId("");
@@ -412,10 +416,6 @@ const CodeEditor = ({ userData, virtualBox }: {
             if (nextTab) getFileData(nextTab);
         }
     }
-
-
-
-
 
     const createTerminal = () => {
 
@@ -516,6 +516,10 @@ const CodeEditor = ({ userData, virtualBox }: {
                 userId={virtualBox.userId}
                 tree={tree}
                 setTree={setTree}
+                tabs={tabs}
+                setTabs={setTabs}
+                // setActiveFileId={setActiveFileId}
+                closeTab={closeTab}
             />
 
             <ResizablePanelGroup direction="horizontal">
@@ -553,10 +557,17 @@ const CodeEditor = ({ userData, virtualBox }: {
                                         <Editor
                                             height={"100%"}
                                             theme="vs-dark"
+                                            value={activeFileData || ""}
                                             onMount={handleEditorMount}
                                             beforeMount={handleEditorWillMount}
                                             language={editorLanguage}
                                             onChange={(value) => {
+
+                                                if (isInitialLoad.current) {
+                                                    isInitialLoad.current = false; // skip first change
+                                                    return;
+                                                }
+
                                                 if (value === activeFileData) {
                                                     setTabs((prev) =>
                                                         prev.map((tab) =>
@@ -564,6 +575,8 @@ const CodeEditor = ({ userData, virtualBox }: {
                                                         )
                                                     );
                                                 } else {
+                                                    // when 1st file is opened, it is always marked unsaved initially
+
                                                     setTabs((prev) =>
                                                         prev.map((tab) =>
                                                             tab.id === activeFileId ? { ...tab, saved: false } : tab
@@ -584,7 +597,6 @@ const CodeEditor = ({ userData, virtualBox }: {
                                                 fontFamily: "var(--font-geist-mono)",
                                                 fontSize: 12
                                             }}
-                                            value={activeFileData || "Loading..."}
                                         />
                                     </>
                                 )

@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { getIconForFile } from 'vscode-icons-js'
 import Image from 'next/image'
-import { TFile, TTab } from '@/frontend/src/lib/types'
+import { TFile, TFolder, TTab } from '@/frontend/src/lib/types'
 import { toast } from 'sonner'
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/frontend/src/components/ui/context-menu"
 import { Loader2, Pencil, Trash2 } from 'lucide-react'
@@ -13,7 +13,7 @@ const SideBarFile = ({ data, selectFile, handleRename, deleteFileOrFolder }: {
     data: TFile
     selectFile: (tab: TTab) => void
     handleRename: (id: string, fullPath: string, newName: string, type: "file" | "folder") => void
-    deleteFileOrFolder: (path: string) => void
+    deleteFileOrFolder: (data: TFile | TFolder) => void
 
 }) => {
 
@@ -111,7 +111,7 @@ const SideBarFile = ({ data, selectFile, handleRename, deleteFileOrFolder }: {
                 </ContextMenuItem>
                 <ContextMenuItem disabled={pendingDelete} onClick={() => {
                     setPendingDelete(true)
-                    deleteFileOrFolder(data.fullPath)
+                    deleteFileOrFolder(data)
                 }}>
                     <Trash2 className='text-red-500 w-4 h-4' />
                     Delete

@@ -2,7 +2,7 @@
 import { X } from "lucide-react";
 import { Button } from "../ui/button";
 
-const CustomTab = ({ children, selected, onClick, onClose, saved }: {
+const CustomTab = ({ children, selected, onClick, onClose, saved = true }: {
     children: React.ReactNode
     selected?: boolean
     saved?: boolean;
@@ -21,22 +21,19 @@ const CustomTab = ({ children, selected, onClick, onClose, saved }: {
         >
             {children}
             <div onClick={onClose && (
-                        (e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            onClose();
-                        }
-                    )
+                (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    onClose();
                 }
+            )
+            }
                 className="h-5 w-5 ml-0.5 group flex items-center justify-center translate-x-1 transition-colors bg-transparent hover:bg-muted-foreground/25 cursor-pointer rounded-sm"
             >
                 {saved ? (
                     <X className="w-2 h-2" />
                 ) : (
-                    <>
-                        <X className="w-2 h-2 group-hover:block hidden" />
-                        <div className="w-2 h-2 rounded-full bg-foreground group-hover:hidden" />
-                    </>
+                    <div className="w-2 h-2 rounded-full bg-foreground group-hover:hidden" />
                 )}
             </div>
         </Button>

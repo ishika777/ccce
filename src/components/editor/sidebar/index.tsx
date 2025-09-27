@@ -9,7 +9,7 @@ import { Socket } from 'socket.io-client'
 import { getFilesInFolder, validateName } from '@/frontend/src/lib/utils'
 import { toast } from 'sonner'
 
-const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree, tree }: {
+const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree, tree, tabs, setTabs, closeTab }: {
     folderTree: (TFile | TFolder)[]
     selectFile: (tab: TTab) => void
     socket: Socket
@@ -17,6 +17,11 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
     userId: string
     tree: (TFile | TFolder)[]
     setTree: (folderTree: (TFile | TFolder)[]) => void
+    tabs: TTab[]
+    setTabs: React.Dispatch<React.SetStateAction<TTab[]>>
+    // setActiveFileId: React.Dispatch<React.SetStateAction<string>>
+    closeTab: (tab: TFile) => void
+
 }) => {
 
     const [creatingNew, setCreatingNew] = useState<"file" | "folder" | null>(null);
@@ -26,15 +31,25 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
 
     const createNew = (name: string, type: "file" | "folder"): boolean => {
 
+        if (!name) {
+            toast.error("Name cannot be empty");
+            return false;
+        }
+
         const path = selectedFolder ? selectedFolder : `${userId}/${virtualBoxId}`;
 
         const files: { file: string[]; folder: string[] } = getFilesInFolder(tree, path);
-        
+
         const isDuplicate = type === "file"
             ? files.file.includes(name)
             : files.folder.includes(name);
 
-        if (name && validateName(name, "", type) && !isDuplicate) {
+        if (isDuplicate) {
+            toast.error(`A ${type} named "${name}" already exists in this folder.`);
+            return false;
+        }
+
+        if (validateName(name, "", type)) {
             setPendingCreate(true)
             socket.emit("create-new-request", name, type, path, (success: boolean, error: string | null, resTree: (TFile | TFolder)[]) => {
                 if (success) {
@@ -47,24 +62,26 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
             });
             if (pendingCreate) setPendingCreate(false)
             return true
-        } else {
-            toast.error(`A ${type} named "${name}" already exists in this folder.`);
-            return false;
         }
+        return false;
     };
 
+    const deleteFileOrFolder = async (data: TFile | TFolder) => {
+        const type = data.fullPath.split("/").pop()?.includes(".") ? "file" : "folder";
 
-    const deleteFileOrFolder = async (path: string) => {
-        const type = path.split("/").pop()?.includes(".") ? "file" : "folder";
-        socket.emit("delete-request", path, (success: boolean, error: string | null, resTree: (TFile | TFolder)[]) => {
+        socket.emit("delete-request", data.fullPath, (success: boolean, error: string | null, resTree: (TFile | TFolder)[]) => {
 
             if (success) {
                 setTree(resTree)
-                // 
-                //  tabs update
-                // 
-                // 
-                // 
+
+                if (data.type === "file") {
+                    closeTab(data);
+                } else if (data.type === "folder") {
+                    // If folder, close all tabs inside this folder
+                    const folderFullPath = data.fullPath;
+                    tabs.filter((tab) => tab.fullPath.startsWith(folderFullPath)).forEach((tab) => closeTab(tab));
+                }
+
                 toast.success(`Successfully deleted ${type}`)
             } else {
                 toast.error(`${error}`)
@@ -74,7 +91,7 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
     }
 
     const handleRename = (id: string, fullPath: string, newName: string, type: "file" | "folder") => {
-        
+
         //name validation handled in SidebarFolder and SidebarFile
         socket.emit("rename", fullPath, newName, (success: boolean, error: string | null, resTree: (TFile | TFolder)[]) => {
             if (success) {
@@ -147,39 +164,42 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
                                     </div>
                                 </div>
                             }
-                            {folderTree && folderTree.map((child) =>
-                                child.type === "file" ? (
-                                    <SideBarFile
-                                        key={child.id}
-                                        data={child}
-                                        selectFile={selectFile}
-                                        handleRename={handleRename}
-                                        deleteFileOrFolder={deleteFileOrFolder}
-                                    />
-                                ) : (
-                                    <SidebarFolder
-                                        key={child.id}
+                            {folderTree && folderTree.map((child) => {
 
-                                        data={child}
-                                        socket={socket}
+                                return child.type === "file"
+                                    ? child.name !== ".placeholder" && (
+                                        <SideBarFile
+                                            key={child.id}
+                                            data={child}
+                                            selectFile={selectFile}
+                                            handleRename={handleRename}
+                                            deleteFileOrFolder={deleteFileOrFolder}
+                                        />
+                                    )
+                                    : (
+                                        <SidebarFolder
+                                            key={child.id}
 
-                                        selectFile={selectFile}
+                                            data={child}
+                                            socket={socket}
 
-                                        selectedFolder={selectedFolder}
-                                        setSelectedFolder={setSelectedFolder}
+                                            selectFile={selectFile}
 
-                                        creatingNew={creatingNew}
-                                        setCreatingNew={setCreatingNew}
+                                            selectedFolder={selectedFolder}
+                                            setSelectedFolder={setSelectedFolder}
 
-                                        pendingCreate={pendingCreate}
-                                        setPendingCreate={setPendingCreate}
+                                            creatingNew={creatingNew}
+                                            setCreatingNew={setCreatingNew}
 
-                                        handleRename={handleRename}
-                                        createNew={createNew}
-                                        deleteFileOrFolder={deleteFileOrFolder}
-                                    />
-                                )
-                            )}
+                                            pendingCreate={pendingCreate}
+                                            setPendingCreate={setPendingCreate}
+
+                                            handleRename={handleRename}
+                                            createNew={createNew}
+                                            deleteFileOrFolder={deleteFileOrFolder}
+                                        />
+                                    );
+                            })}
                         </>
                     )
                 }
