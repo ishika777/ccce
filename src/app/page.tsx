@@ -22,9 +22,6 @@ const Home = async() => {
                     <Button>Go To App</Button>
                 </Link>
             </div>
-            {/* <div className="w-full rounded-lg bg-neutral-800 mt-12 aspect-video">
-
-            </div> */}
         </div>
     </div>
   );

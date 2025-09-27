@@ -49,7 +49,6 @@ const CodeEditor = ({ userData, virtualBox }: {
     virtualBox: VirtualBoxType
 }) => {
 
-
     const clerk = useClerk();
     const router = useRouter();
     const room = useRoom();
@@ -61,8 +60,10 @@ const CodeEditor = ({ userData, virtualBox }: {
     const generateWidgetRef = useRef<HTMLDivElement>(null)
     const editorContainerRef = useRef<HTMLDivElement>(null)
     const previewPanelRef = useRef<ImperativePanelHandle>(null);
-    const [editorRef, setEditorRef] = useState<monaco.editor.IStandaloneCodeEditor>();
+    
 
+
+    const [editorRef, setEditorRef] = useState<monaco.editor.IStandaloneCodeEditor>();
 
     const [generate, setGenerate] = useState<{
         show: boolean,
@@ -80,40 +81,46 @@ const CodeEditor = ({ userData, virtualBox }: {
         pref: []
 
     })
-    
-    
+
+
     const [cursorLine, setCursorLine] = useState(0);
     const [iframeKey, setIframeKey] = useState<number>(0);
 
     const [provider, setProvider] = useState<TypedLiveblocksProvider>();
-    
-    // const [ai, setAi] = useState<boolean>(true);
+
     const [creatingTerminal, setCreatingTerminal] = useState(false);
     const [previewLoading, setPreviewLoading] = useState<boolean>(false);
-    
+
     const [tree, setTree] = useState<(TFolder | TFile)[]>([]);
     const [tabs, setTabs] = useState<TTab[]>([]);
-    
+
     const [activeFileId, setActiveFileId] = useState<string>("");
     const [previewUrl, setPreviewUrl] = useState<string>("");
     const [activeFileData, setActiveFileData] = useState<string | null>(null)
     const [editorLanguage, setEditorLanguage] = useState<string | undefined>(undefined)
 
     const [terminal, setTerminal] = useState<{ id: string; terminal: Terminal | null; }>({ id: "", terminal: null });
-    
+
     const [disableAccess, setDisableAccess] = useState({ isDisabled: false, message: "" });
 
     const [isPreviewCollapsed, setIsPreviewCollapsed] = useState(virtualBox.type !== "react");
 
 
+    console.log(tabs)
+
+
+    //get file tree on load
     useEffect(() => {
-        if(socket){
+        if (socket) {
+            // owner userId is used rather than user due to (shared user and owner)
             socket.emit("get-file-tree", virtualBox.userId, virtualBox.id, (error: string) => {
-                toast.error(error)
+                toast.error(String(error))
             })
         }
     }, [])
 
+
+    // initial socket setup
     useEffect(() => {
         if (typeof window === 'undefined') return;
 
@@ -123,7 +130,6 @@ const CodeEditor = ({ userData, virtualBox }: {
             toast.error(`Connection failed: ${err.message}`)
             router.push("/dashboard")
         })
-
 
         const resizeObserver = new ResizeObserver((entries) => {
             for (const entry of entries) {
@@ -146,14 +152,26 @@ const CodeEditor = ({ userData, virtualBox }: {
         }
     }, [])
 
+
+    // terminal and file tree socket listeners
     useEffect(() => {
+
+        const onConnect = () => { }
+
+        const onDisconnect = () => { setTerminal({ id: "", terminal: null }) }
+
+
         const onLoadedEvent = (tree: (TFolder | TFile)[]) => {
             setTree(tree);
         }
 
-        const onConnect = () => {}
+        const onDisableAccess = (message: string) => {
+            setDisableAccess({
+                isDisabled: true,
+                message: message,
+            });
+        };
 
-        const onDisconnect = () => { setTerminal({ id: "", terminal: null }) }
 
         const onTerminalResponse = (response: { id: string; data: string }) => {
             if (terminal?.terminal) {
@@ -164,24 +182,19 @@ const CodeEditor = ({ userData, virtualBox }: {
             }
         };
 
-
-        const onDisableAccess = (message: string) => {
-            setDisableAccess({
-                isDisabled: true,
-                message: message,
-            });
-        };
-
-        // if tried to create more that 1 terminal
-        const onTerminalError = (message: string) => { toast.error(message) }
+        const onTerminalError = (message: string) => {
+            toast.error(message)
+        }
 
         socket.on("connect", onConnect)
         socket.on("disconnect", onDisconnect)
 
+        // get file tree
         socket.on("loaded", onLoadedEvent);
 
         socket.on("terminal-error", onTerminalError);
         socket.on("terminal-response", onTerminalResponse);
+
         socket.on("disableAccess", onDisableAccess);
 
         return () => {
@@ -226,6 +239,29 @@ const CodeEditor = ({ userData, virtualBox }: {
         }])
     }
 
+    const saveFile = (e: KeyboardEvent) => {
+        //meta key for mac users
+        if ((e.key === "s" || e.key === "S") && (e.metaKey || e.ctrlKey)) {
+            e.preventDefault();
+
+            const activeTab = tabs.find((t) => t.id === activeFileId);
+            if (!activeTab?.saved) {
+                socket.emit("save-file", activeTab?.fullPath, editorRef?.getValue(), (success: boolean) => {
+                    if (success) {
+                        toast.success("file saved");
+                        setTabs((prev) =>
+                            prev.map((tab) => tab.id === activeFileId ? { ...tab, saved: true } : tab)
+                        );
+                    } else {
+                        toast.error("Couldn't save file")
+                    }
+                })
+            }
+        }
+    };
+
+
+    // liveblocks direct code
     useEffect(() => {
         if (!room || !editorRef) return;
 
@@ -241,7 +277,6 @@ const CodeEditor = ({ userData, virtualBox }: {
             }
         });
 
-        // Monaco Binding
         const binding = new MonacoBinding(
             yText,
             editorRef.getModel()!,
@@ -255,20 +290,13 @@ const CodeEditor = ({ userData, virtualBox }: {
         };
     }, [room, editorRef]);
 
+
+    // generate widget management
     useEffect(() => {
-        // if (!ai) {
-        //     setGenerate((prev) => {
-        //         return {
-        //             ...prev,
-        //             show: false,
-        //         };
-        //     });
-        //     return;
-        // }
         if (generate.show) {
             editorRef?.changeViewZones((changeAccessor: monaco.editor.IViewZoneChangeAccessor) => {
                 if (!generateRef.current) return;
-                console.log(cursorLine);
+
                 const id = changeAccessor.addZone({
                     afterLineNumber: cursorLine,
                     heightInLines: 3,
@@ -328,6 +356,17 @@ const CodeEditor = ({ userData, virtualBox }: {
         }
     }, [generate.show, activeFileId, tabs, editorRef])
 
+
+    // ctrl S listener
+    useEffect(() => {
+        document.addEventListener("keydown", saveFile);
+        return () => {
+            document.removeEventListener("keydown", saveFile);
+        };
+    }, [tabs, activeFileId, editorRef, socket]);
+
+
+
     const getFileData = (tab: TTab) => {
         if (tab.id === activeFileId) return;
         const includes = tabs.find((t) => t.id === tab.id);
@@ -335,10 +374,13 @@ const CodeEditor = ({ userData, virtualBox }: {
             if (includes) {
                 setActiveFileId(includes.id);
                 return prev;
-            }else{
+            } else {
                 return [...prev, tab]
             }
         })
+
+
+        console.log(tabs)
 
         socket.emit("getFile", tab.fullPath, (response: string) => {
             setActiveFileData(response);
@@ -347,6 +389,9 @@ const CodeEditor = ({ userData, virtualBox }: {
         setEditorLanguage(processFileType(tab.name))
         setActiveFileId(tab.id)
     }
+
+
+
 
     const closeTab = (tab: TFile) => {
         const tabCount = tabs.length;
@@ -368,34 +413,9 @@ const CodeEditor = ({ userData, virtualBox }: {
         }
     }
 
-    const saveFile = (e: KeyboardEvent) => {
-        //meta key for mac users
-        if ((e.key === "s" || e.key === "S") && (e.metaKey || e.ctrlKey)) {
-            e.preventDefault();
 
-            const activeTab = tabs.find((t) => t.id === activeFileId);
-            if (!activeTab?.saved) {
-                socket.emit("save-file", activeTab?.fullPath, editorRef?.getValue(), (success: boolean) => {
-                    if (success) {
-                        toast.success("file saved");
-                        setTabs((prev) =>
-                            prev.map((tab) => tab.id === activeFileId ? { ...tab, saved: true } : tab)
-                        );
-                    } else {
-                        toast.error("Couldn't save file")
-                    }
-                })
-            }
-        }
-    };
 
-    // ctrl S event handler
-    useEffect(() => {
-        document.addEventListener("keydown", saveFile);
-        return () => {
-            document.removeEventListener("keydown", saveFile);
-        };
-    }, [tabs, activeFileId, editorRef, socket]);
+
 
     const createTerminal = () => {
 
@@ -409,7 +429,7 @@ const CodeEditor = ({ userData, virtualBox }: {
             socket.emit("create-terminal", id, userData.id, virtualBox.id, (error?: string) => {
                 setCreatingTerminal(false);
                 setPreviewLoading(false);
-                if(error){
+                if (error) {
                     toast.error(error);
                 }
             });
@@ -422,6 +442,7 @@ const CodeEditor = ({ userData, virtualBox }: {
             setPreviewUrl("");
         });
     };
+
 
     if (disableAccess.isDisabled) {
         return (
@@ -563,7 +584,7 @@ const CodeEditor = ({ userData, virtualBox }: {
                                                 fontFamily: "var(--font-geist-mono)",
                                                 fontSize: 12
                                             }}
-                                            value={activeFileData ?? ""}
+                                            value={activeFileData || "Loading..."}
                                         />
                                     </>
                                 )
@@ -609,7 +630,7 @@ const CodeEditor = ({ userData, virtualBox }: {
                                     terminal.id && (
                                         <CustomTab
                                             key={terminal.id}
-                                            onClick={() => {}}
+                                            onClick={() => { }}
                                             onClose={() => closeTerminal()}
                                             selected={true}
                                         >

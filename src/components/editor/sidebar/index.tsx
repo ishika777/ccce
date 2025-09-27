@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from 'react'
-import { FilePlus, FolderPlus, Loader2, MonitorPlay, Search, Sparkles } from 'lucide-react'
+import { FilePlus, FolderPlus, Loader2, Sparkles } from 'lucide-react'
 import SideBarFile from './file'
 import SidebarFolder from './folder'
 import { TFile, TFolder, TTab } from '@/frontend/src/lib/types'
@@ -8,7 +8,6 @@ import New from './new'
 import { Socket } from 'socket.io-client'
 import { getFilesInFolder, validateName } from '@/frontend/src/lib/utils'
 import { toast } from 'sonner'
-import { Button } from '../../ui/button'
 
 const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree, tree }: {
     folderTree: (TFile | TFolder)[]
@@ -22,26 +21,7 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
 
     const [creatingNew, setCreatingNew] = useState<"file" | "folder" | null>(null);
     const [selectedFolder, setSelectedFolder] = useState<string>("");
-    const [expandedFolders, setExpandedFolders] = useState(new Set());
     const [pendingCreate, setPendingCreate] = useState<boolean>(false);
-
-
-    const toggleFolder = (folderId: string) => {
-
-        if(expandedFolders){} //just for build
-
-        setExpandedFolders((prev) => {
-            const updated = new Set(prev);
-            if (updated.has(folderId)) {
-                updated.delete(folderId);
-            } else {
-                updated.add(folderId);
-            }
-            return updated;
-        });
-
-
-    };
 
 
     const createNew = (name: string, type: "file" | "folder"): boolean => {
@@ -96,7 +76,7 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
     const handleRename = (id: string, fullPath: string, newName: string, type: "file" | "folder") => {
         
         //name validation handled in SidebarFolder and SidebarFile
-        socket.emit("rename", fullPath, newName, (success: boolean, error: string | null, pathMap: Record<string, string>, resTree: (TFile | TFolder)[]) => {
+        socket.emit("rename", fullPath, newName, (success: boolean, error: string | null, resTree: (TFile | TFolder)[]) => {
             if (success) {
                 setTree(resTree);
                 // setTabs(prevTabs =>
@@ -124,7 +104,7 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
 
         <div className='h-full w-fit min-w-48 flex flex-col items-start p-2 border-1 border-r-muted-foreground/25'>
             <div className='flex w-full items-center justify-between h-8 mb-1'>
-                <div onClick={() => setSelectedFolder("")} className='text-white cursor-pointer'>Explorer</div>
+                <div onClick={() => setSelectedFolder("")} className='text-white cursor-pointer'>Files</div>
                 <div className='flex space-x-1'>
                     <button
                         disabled={!!creatingNew}
@@ -140,9 +120,6 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
                     >
                         <FolderPlus className="h-5 w-5" />
                     </button>
-                    <div className='h-6 w-6 text-muted-foreground p-0.8 ml-0.5 flex items-center justify-center translate-x-1 transition-colors bg-transparent hover:bg-muted-foreground/25 cursor-pointer rounded-sm'>
-                        <Search className='w-5 h-5' />
-                    </div>
                 </div>
             </div>
 
@@ -188,8 +165,6 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
 
                                         selectFile={selectFile}
 
-                                        toggleFolder={toggleFolder}
-
                                         selectedFolder={selectedFolder}
                                         setSelectedFolder={setSelectedFolder}
 
@@ -222,9 +197,6 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
                         </span>
                     </div>
                 </div>
-                <Button className="w-full">
-                    <MonitorPlay   className="w-4 h-4 mr-2" /> Run
-                </Button>
             </div>
         </div>
     )

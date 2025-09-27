@@ -70,7 +70,7 @@ const EditVirtualBoxModal = ({ open, setOpen, data, userId, virtualboxId }: {
         if (error instanceof Error) {
             toast.error(error.message);
         } else {
-            toast.error("An unknown error occurred.");
+            toast.error(String(error));
         }
     } finally {
             setOpen(false);
@@ -93,7 +93,7 @@ const EditVirtualBoxModal = ({ open, setOpen, data, userId, virtualboxId }: {
         if (error instanceof Error) {
             toast.error(error.message);
         } else {
-            toast.error("An unknown error occurred.");
+            toast.error(String(error));
         }
     } finally {
             setLoadingDelete(false);

@@ -36,7 +36,7 @@ const DashboardProjects = ({ userData, virtualboxes, q }: {
             if (error instanceof Error) {
                 toast.error(error.message);
             } else {
-                toast.error("An unknown error occurred.");
+                toast.error(String(error));
             }
         } finally {
             setIsDeletingAll(false);
@@ -58,7 +58,7 @@ const DashboardProjects = ({ userData, virtualboxes, q }: {
             if (error instanceof Error) {
                 toast.error(error.message);
             } else {
-                toast.error("An unknown error occurred.");
+                toast.error(String(error));
             }
         } finally {
             setIsDeleting(false);
@@ -78,7 +78,7 @@ const DashboardProjects = ({ userData, virtualboxes, q }: {
             if (error instanceof Error) {
                 toast.error(error.message);
             } else {
-                toast.error("An unknown error occurred.");
+                toast.error(String(error));
             }
         }
     };

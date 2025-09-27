@@ -8,7 +8,7 @@ export default clerkMiddleware((auth, req) => {
   const isCodeRoute = pathname.includes('code');
 
   if (isDashboard && isCodeRoute) {
-    auth.protect(); // Enforce auth only if it's dashboard and not a "code" route
+    auth.protect(); // Enforce auth only if it's dashboard and a "code" route
   }
 
   return NextResponse.next(); // Allow all others

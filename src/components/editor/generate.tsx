@@ -56,7 +56,6 @@ export default function GenerateInput({
             return;
         }
 
-
         setCode("");
         setLoading({ generate: !regenerate, regenerate });
 

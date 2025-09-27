@@ -81,8 +81,8 @@ export default function NewProjectModal({
 
         const virtualboxData = {
             userId: user.user.id,
-            name: values.name,
             type: selected,
+            name: values.name,
             visibility: values.visibility
         };
 
@@ -90,13 +90,10 @@ export default function NewProjectModal({
             setLoading(true);
             await createVirtualBox(virtualboxData);
             router.refresh()
-        }catch (error: unknown) {
-        if (error instanceof Error) {
-            toast.error(error.message);
-        } else {
-            toast.error("An unknown error occurred.");
-        }
-    }finally {
+        } catch (error: unknown) {
+            console.log("Error creating virtual box:", error);
+            toast.error(error instanceof Error ? error.message : String(error));
+        } finally {
             form.reset();
             setLoading(false);
             setOpen(false);
@@ -105,7 +102,7 @@ export default function NewProjectModal({
 
     return (
         <Dialog open={open} onOpenChange={(open: boolean) => {
-            if (loading){
+            if (loading) {
                 return
             }
             setOpen(!open);
@@ -178,7 +175,7 @@ export default function NewProjectModal({
                                 </FormItem>
                             )}
                         />
-                        <CustomButton disabled={loading} type="submit" className="w-full">
+                        <CustomButton disabled={loading} className="w-full">
                             {loading ? (
                                 <>
                                     <Loader2 className="animate-spin mr-2 h-4 w-4" /> Loading...

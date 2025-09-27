@@ -39,7 +39,7 @@ const Dashboard = ({ userData, virtualBoxList }: {
                     <div className="flex flex-col">
                         <CustomButton className="mb-4" onClick={() => {
                             if (virtualBoxList.length >= 8) {
-                                toast.error("You reached the maximum # of virtualboxes");
+                                toast.error("You reached the maximum no of virtualboxes");
                                 return;
                             }
                             setNewProjectModalOpen(true)

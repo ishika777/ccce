@@ -38,15 +38,20 @@ export function validateName(
     return true;
 }
 
+const getParentPath = (path: string) => {
+    const parts = path.split('/');
+    parts.pop(); 
+    return parts.join('/');
+};
+
+
 export const getFilesInFolder = (tree: (TFile | TFolder)[], targetPath: string): {
         file: string[],
         folder: string[]
     } => {
-    const getParentPath = (path: string) => {
-        const parts = path.split('/');
-        parts.pop(); 
-        return parts.join('/');
-    };
+
+        console.log(tree)
+
     const result: {
         file: string[],
         folder: string[]

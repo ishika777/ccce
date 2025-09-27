@@ -20,7 +20,7 @@ export const getVirtualBoxById = async (id: string) => {
         if (axios.isAxiosError(error)) {
             throw error.response?.data?.message || error.message || "Failed to fetch shared users";
         }
-        throw "Failed to fetch shared users";
+        throw String(error);
     }
 };
 
@@ -36,10 +36,11 @@ export const createVirtualBox = async (data: {
         console.log(res);
         return res.data.virtualbox;
     } catch (error: unknown) {
+       
         if (axios.isAxiosError(error)) {
             throw error.response?.data?.message || error.message || "Failed to create virtual box";
         }
-        throw "Failed to create virtual box";
+        throw String(error);
     }
 };
 
@@ -51,7 +52,7 @@ export const deleteAllVirtualBox = async (userId: string) => {
         if (axios.isAxiosError(error)) {
             throw error.response?.data?.message || error.message || "Failed to delete all Virtual Boxes";
         }
-        throw "Failed to delete all Virtual Boxes";
+        throw String(error);
     }
 }
 
@@ -66,7 +67,7 @@ export const deleteVirtualBox = async (data: {
         if (axios.isAxiosError(error)) {
             throw error.response?.data?.message || error.message || "Failed to delete virtual box";
         }
-        throw "Failed to delete virtual box";
+        throw String(error);
     }
 };
 
@@ -82,7 +83,7 @@ export const changeVisibility = async (
         if (axios.isAxiosError(error)) {
             throw error.response?.data?.message || error.message || "Failed to change visibility";
         }
-        throw "Failed to change visibility";
+        throw String(error);
     }
 }
 
@@ -99,7 +100,7 @@ export const updateVirtualBox = async (
         if (axios.isAxiosError(error)) {
             throw error.response?.data?.message || error.message || "Failed to update virtual box";
         }
-        throw "Failed to update virtual box";
+        throw String(error);
     }
 }
 
@@ -111,7 +112,7 @@ export const fetchSharedUsers = async (userId: string) => {
         if (axios.isAxiosError(error)) {
             throw error.response?.data?.message || error.message || "Failed to fetch shared users";
         }
-        throw "Failed to fetch shared users";
+        throw String(error);
     }
 };
 
@@ -123,7 +124,7 @@ export const shareVirtualBox = async (virtualboxId: string, userId: string, emai
         if (axios.isAxiosError(error)) {
             throw error.response?.data?.message || error.message || "Failed to share virtual box";
         }
-        throw "Failed to share virtual box";
+        throw String(error);
     }
 };
 
@@ -138,7 +139,7 @@ export const unShareVirtualBox = async (virtualboxId: string, sharedToId: string
         if (axios.isAxiosError(error)) {
             throw error.response?.data?.message || error.message || "Failed to share virtual box";
         }
-        throw "Failed to share virtual box";
+        throw String(error);
     }
 };
 

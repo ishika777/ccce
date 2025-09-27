@@ -37,7 +37,7 @@ export default function SharedUser({
         if (error instanceof Error) {
             toast.error(error.message);
         } else {
-            toast.error("An unknown error occurred.");
+            toast.error(String(error));
         }
     } finally {
             setIsRemoving(false);

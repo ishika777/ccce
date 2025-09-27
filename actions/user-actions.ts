@@ -10,7 +10,7 @@ export const fetchAllUsers = async () => {
             if (axios.isAxiosError(error)) {
                 throw error.response?.data?.message || error.message || "Failed to fetch users";
             }
-            throw "Failed to fetch users";
+            throw String(error);
         }
     };
 
@@ -22,7 +22,7 @@ export const fetchUserById = async (id: string) => {
         if (axios.isAxiosError(error)) {
             throw error.response?.data?.message || error.message || "Failed to fetch user";
         }
-        throw "Failed to fetch user";
+        throw String(error);
     }
 };
 
@@ -40,6 +40,6 @@ export const createUser = async (data: dataType) => {
         if (axios.isAxiosError(error)) {
             throw error.response?.data?.message || error.message || "Failed to create users";
         }
-        throw "Failed to create users";
+        throw String(error);
     }
 };

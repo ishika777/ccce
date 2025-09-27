@@ -27,7 +27,6 @@ const SidebarFolder = ({
     socket,
     createNew,
     setCreatingNew,
-    toggleFolder,
     deleteFileOrFolder,
     pendingCreate,
     setPendingCreate
@@ -41,7 +40,6 @@ const SidebarFolder = ({
     socket: Socket
     createNew: (name: string, type: "file" | "folder") => boolean
     setCreatingNew: (data: "file" | "folder" | null) => void
-    toggleFolder: (folderId: string) => void
     deleteFileOrFolder: (path: string) => void
     pendingCreate: boolean
     setPendingCreate: (create: boolean) => void
@@ -85,7 +83,6 @@ const SidebarFolder = ({
                         onClick={() => {
                             if (!editing && !pendingDelete && !pendingEdit) {
                                 setOpen((prev) => !prev)
-                                toggleFolder(data.fullPath)
                                 setSelectedFolder(data.fullPath)
                             }
                         }}
@@ -164,7 +161,6 @@ const SidebarFolder = ({
                                                 key={child.id}
                                                 data={child}
                                                 selectFile={selectFile}
-                                                toggleFolder={toggleFolder}
                                                 handleRename={handleRename}
                                                 setSelectedFolder={setSelectedFolder}
                                                 selectedFolder={selectedFolder}
