@@ -47,7 +47,7 @@ const DashboardSharedPage = ({ shared }: { shared: UsersToVirtualBoxesType[] }) 
             setLoading(false);
         }
         fetchData()
-    }, [])
+    }, [shared])
 
 
     return (

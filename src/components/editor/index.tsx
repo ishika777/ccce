@@ -117,7 +117,7 @@ const CodeEditor = ({ userData, virtualBox }: {
                 toast.error(String(error))
             })
         }
-    }, [])
+    }, [socket])
 
 
     // initial socket setup
@@ -150,7 +150,7 @@ const CodeEditor = ({ userData, virtualBox }: {
             socket.disconnect()
             resizeObserver.disconnect()
         }
-    }, [])
+    }, [socket])
 
 
     // terminal and file tree socket listeners
@@ -205,7 +205,7 @@ const CodeEditor = ({ userData, virtualBox }: {
             socket.off("terminal-response", onTerminalResponse);
             socket.off("disableAccess", onDisableAccess);
         }
-    }, [terminal])
+    }, [terminal, socket])
 
 
     const handleEditorMount: OnMount = (editor, monaco) => {
@@ -288,7 +288,7 @@ const CodeEditor = ({ userData, virtualBox }: {
             binding.destroy();
             yProvider.destroy();
         };
-    }, [room, editorRef]);
+    }, [room, editorRef, socket]);
 
 
     // generate widget management
@@ -363,7 +363,7 @@ const CodeEditor = ({ userData, virtualBox }: {
         return () => {
             document.removeEventListener("keydown", saveFile);
         };
-    }, [tabs, activeFileId, editorRef, socket]);
+    }, [tabs, activeFileId, editorRef, socket, saveFile]);
 
 
 

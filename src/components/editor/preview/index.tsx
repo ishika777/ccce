@@ -56,7 +56,7 @@ export default function PreviewWindow({
         return () => {
             socket.off("preview-url", handlePreviewUrl);
         };
-    }, [socket]);
+    }, [socket, setLoading, setPreviewUrl]);
 
     const handleRefresh = () => {
         toast.info("does nothing")
