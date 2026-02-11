@@ -96,19 +96,19 @@ const Sidebar = ({ folderTree, selectFile, socket, virtualBoxId, userId, setTree
         socket.emit("rename", fullPath, newName, (success: boolean, error: string | null, resTree: (TFile | TFolder)[]) => {
             if (success) {
                 setTree(resTree);
-                // setTabs(prevTabs =>
-                //     prevTabs.map(tab => {
-                //         const newPath = pathMap[tab.fullPath];
-                //         if (newPath) {
-                //             return {
-                //                 ...tab,
-                //                 fullPath: newPath,
-                //                 name: newPath.split("/").pop() ?? tab.name,
-                //             };
-                //         }
-                //         return tab;
-                //     })
-                // );
+                setTabs(prevTabs =>
+                    prevTabs.map(tab => {
+                        // const newPath = pathMap[tab.fullPath];
+                        // if (newPath) {
+                        //     return {
+                        //         ...tab,
+                        //         fullPath: newPath,
+                        //         name: newPath.split("/").pop() ?? tab.name,
+                        //     };
+                        // }
+                        return {...tab, name: newName};
+                    })
+                );
                 toast.success(`Successfully renamed ${type}`)
             } else {
                 toast.error(`${error}`)
