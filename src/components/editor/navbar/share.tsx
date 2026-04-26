@@ -131,7 +131,7 @@ const ShareVirtualboxModal = ({
                             </Form>
 
                             {shared.length > 0 && (
-                                <>
+                                <> 
                                     <div className="w-full h-[1px] bg-border" />
                                     <div className="p-6 pt-3">
                                         <DialogHeader className="mb-3">

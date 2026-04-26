@@ -159,7 +159,7 @@ const EditVirtualBoxModal = ({ open, setOpen, data, userId, virtualboxId }: {
                         </Button>
                     </form>
                 </Form>
-                <Button
+                <Button 
                     disabled={loadingDelete}
                     onClick={onDelete}
                     className="w-full !bg-red-600 text-white"

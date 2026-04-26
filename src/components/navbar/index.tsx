@@ -5,7 +5,7 @@ import NavbarSearch from './search'
 import NavBarUserButton from './userButton'
 import { UserType } from '../../lib/types'
 
-const Navbar = ({ userData }: { 
+const Navbar = ({ userData }: {
     userData: UserType
  }) => {
   return (

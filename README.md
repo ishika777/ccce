@@ -1,15 +1,9 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-front 
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_b24tbGFiLTYuY2xlcmsuYWNjb3VudHMuZGV2JA"
-CLERK_SECRET_KEY="sk_test_xYhBkVGWErJUBTAUSMuCZmtfz4ls78YIEzzw3WMj7M"
 
-back
-SUPABASE_URL=https://icrsafggmpoyfwwzbvpt.supabase.co
-API_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcnNhZmdnbXBveWZ3d3pidnB0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTAwNTc0OTcsImV4cCI6MjA2NTYzMzQ5N30.5d1vnJFS9zD3rSlIgcruKDzRjbI4QgkT0JDYxwVViKc
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljcnNhZmdnbXBveWZ3d3pidnB0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MDA1NzQ5NywiZXhwIjoyMDY1NjMzNDk3fQ.CrAaXg3y16Hh-KW1K6ZW6FuVXBrXnGoPhoOTyh94VgE
 
-GEMINI_API_KEY=AIzaSyBZBdWGHi8HqQZuvz74HxLxCmVoMa1LhuM
+
+
 
 ## Getting Started
 

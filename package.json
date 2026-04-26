@@ -37,7 +37,6 @@
         "better-sqlite3": "^11.10.0",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
-        "drizzle-kit": "^0.31.1",
         "drizzle-orm": "^0.44.2",
         "framer-motion": "^12.19.1",
         "lucide-react": "^0.513.0",
@@ -51,7 +50,6 @@
         "socket.io-client": "^4.8.1",
         "sonner": "^2.0.5",
         "tailwind-merge": "^3.3.0",
-        "vscode-icons-js": "^11.6.1",
         "y-monaco": "^0.1.6",
         "y-protocols": "^1.0.6",
         "yjs": "^13.6.27",
@@ -66,6 +64,7 @@
         "@types/react-dom": "^19",
         "copyfiles": "^2.4.1",
         "cross-env": "^7.0.3",
+        "drizzle-kit": "^0.31.10",
         "eslint": "^9",
         "eslint-config-next": "15.3.3",
         "monaco-editor-webpack-plugin": "^7.1.0",
@@ -73,6 +72,7 @@
         "tailwindcss": "^4",
         "tw-animate-css": "^1.3.4",
         "typescript": "^5",
+        "vscode-icons-js": "^11.6.1",
         "worker-loader": "^3.0.8"
     }
 }

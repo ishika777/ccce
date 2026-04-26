@@ -11,10 +11,10 @@ import { useSearchParams } from "next/navigation"
 import AboutModal from "./about"
 import { toast } from "sonner"
 
-type TScreen = "projects" | "shared" | "settings" | "search";
+type TScreen = "projects" | "shared" | "search";
 
-const Dashboard = ({ userData, virtualBoxList }: { 
-    userData: UserType; virtualBoxList: VirtualBoxType[] 
+const Dashboard = ({ userData, virtualBoxList }: {
+    userData: UserType; virtualBoxList: VirtualBoxType[]
 }) => {
 
     const [screen, setScreen] = useState<TScreen>("projects")
@@ -34,6 +34,7 @@ const Dashboard = ({ userData, virtualBoxList }: {
         <>
             <NewProjectModal open={newProjectModalOpen} setOpen={setNewProjectModalOpen} />
             <AboutModal open={aboutModalOpen} setOpen={setAboutModalOpen} />
+
             <div className="flex grow w-full">
                 <div className="w-56 shrink-0 border-r vorder-b p-4 justify-between flex flex-col">
                     <div className="flex flex-col">
@@ -55,14 +56,6 @@ const Dashboard = ({ userData, virtualBoxList }: {
                         <Button variant={"ghost"} onClick={() => setScreen("shared")} className={activeScreen("shared")}>
                             <Users className="w-4 h-4 mr-2" />
                             Shared With Me
-                        </Button>
-                        <Button variant={"ghost"} onClick={() => setScreen("settings")} className={activeScreen("settings")}>
-                            <Settings className="w-4 h-4 mr-2" />
-                            Settings
-                        </Button>
-                        <Button variant={"ghost"} className="justify-start font-normal text-muted-foreground">
-                            <Code2 className="w-4 h-4 mr-2" />
-                            Github Repo
                         </Button>
                         <Button onClick={() => setAboutModalOpen(true)} variant={"ghost"} className="justify-start font-normal text-muted-foreground">
                             <HelpCircle className="w-4 h-4 mr-2" />

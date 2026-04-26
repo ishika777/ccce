@@ -22,7 +22,7 @@ const CustomButton = ({
       )}
     >
       <div className="rounded-[6px] w-full gradient-button flex items-center justify-center whitespace-nowrap px-4 py-2 h-9">
-        {children}
+        {children} 
       </div>
     </button>
   );

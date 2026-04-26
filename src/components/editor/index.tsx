@@ -27,8 +27,7 @@ import { Cursors } from "./live/cursor";
 import CustomTab from "../custom/customTab";
 import DisableAccessModal from "./live/disableModel";
 
-import { TTab, UserType, VirtualBoxType } from "../../lib/types";
-import { TFile, TFolder } from "../../lib/types";
+import { TTab, UserType, VirtualBoxType, TFile, TFolder } from "../../lib/types";
 import { processFileType } from "../../lib/utils";
 
 
@@ -60,8 +59,6 @@ const CodeEditor = ({ userData, virtualBox }: {
     const generateWidgetRef = useRef<HTMLDivElement>(null)
     const editorContainerRef = useRef<HTMLDivElement>(null)
     const previewPanelRef = useRef<ImperativePanelHandle>(null);
-
-
 
     const [editorRef, setEditorRef] = useState<monaco.editor.IStandaloneCodeEditor>();
 
@@ -110,8 +107,6 @@ const CodeEditor = ({ userData, virtualBox }: {
 
 
 
-
-
     //get file tree on load
     useEffect(() => {
         if (socket) {
@@ -147,8 +142,6 @@ const CodeEditor = ({ userData, virtualBox }: {
             resizeObserver.observe(editorContainerRef.current)
         }
 
-
-
         return () => {
             socket.disconnect()
             resizeObserver.disconnect()
@@ -159,7 +152,7 @@ const CodeEditor = ({ userData, virtualBox }: {
     // terminal and file tree socket listeners
     useEffect(() => {
 
-        const onConnect = () => { }
+        const onConnect = () => {}
 
         const onDisconnect = () => { setTerminal({ id: "", terminal: null }) }
 
@@ -210,7 +203,7 @@ const CodeEditor = ({ userData, virtualBox }: {
         }
     }, [terminal, socket])
 
-
+    // monacoRef and cursor line setup
     const handleEditorMount: OnMount = (editor, monaco) => {
         setEditorRef(editor);
         monacoRef.current = monaco;
@@ -223,6 +216,7 @@ const CodeEditor = ({ userData, virtualBox }: {
 
     }
 
+    // key binding and generate widget visibility control
     const handleEditorWillMount: BeforeMount = (monaco) => {
         const myCommandId = 'generate';
 
@@ -265,7 +259,7 @@ const CodeEditor = ({ userData, virtualBox }: {
     };
 
 
-    // liveblocks direct code
+    // liveblocks direct code from docs
     useEffect(() => {
         if (!room || !editorRef) return;
 
@@ -361,7 +355,7 @@ const CodeEditor = ({ userData, virtualBox }: {
     }, [generate.show, activeFileId, tabs, editorRef])
 
 
-    // ctrl S listener
+    // ctrl S (save file) listener
     useEffect(() => {
         document.addEventListener("keydown", saveFile);
         return () => {
@@ -386,7 +380,7 @@ const CodeEditor = ({ userData, virtualBox }: {
 
         socket.emit("getFile", tab.fullPath, (response: string) => {
             console.log("Received file data:", response);
-                 isInitialLoad.current = true;
+            isInitialLoad.current = true;
             setActiveFileData(response);
             setEditorLanguage(processFileType(tab.name))
         })
@@ -683,7 +677,7 @@ const CodeEditor = ({ userData, virtualBox }: {
                                 </div>
                             ) : (
                                 <div className="w-full h-full flex items-center justify-center text-lg font-medium text-muted-foreground/50 select-none">
-                                    <TerminalSquare className="w-4 h-4 mr-2" />
+                                    <TerminalSquare className="w-8 h-8 mr-2" />
                                     No Terminals Open
                                 </div>
                             )}

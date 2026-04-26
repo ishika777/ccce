@@ -63,7 +63,7 @@ const ProjectCardDropdown = ({openDelete, setOpenDelete, virtualBox, onDelete, o
                     onClick={(e) => {
                         e.stopPropagation()
                         setOpenDelete(true)
-                    }}
+                    }} 
                     className='!text-destructive cursor-pointer'
                 >
                     <Trash2 className='mr-2 w-4 h-4 !text-destructive' />

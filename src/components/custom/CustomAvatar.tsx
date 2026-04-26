@@ -12,7 +12,7 @@ export default function CustomAvatar({
             className={cn(
                 className,
                 "w-5 h-5 font-mono rounded-full overflow-hidden bg-gradient-to-t from-neutral-800 to-neutral-600 flex items-center justify-center text-[0.5rem] font-medium"
-            )}
+            )} 
         >
             {name
                 ?.split("")

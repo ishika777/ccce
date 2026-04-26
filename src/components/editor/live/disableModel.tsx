@@ -30,7 +30,6 @@ export default function DisableAccessModal({
         }
     }, [open, router]);
 
-
     return (
         <Dialog open={open}>
             <DialogContent>

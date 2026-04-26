@@ -81,7 +81,6 @@ const EditorNavbar = ({ userData,
                             Share
                         </Button>
                     )}
-
                     <NavBarUserButton userData={userData} />
                 </div>
             </div>

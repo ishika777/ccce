@@ -11,7 +11,7 @@ const ProjectCard = ({ children, className }: {
             <div className='rounded-[7px] p-4 h-full flex flex-col justify-between gradient-project-card'>
                 {children}
             </div>
-        </div>
+        </div> 
     )
 }
 

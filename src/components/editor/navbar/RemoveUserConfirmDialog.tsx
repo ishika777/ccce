@@ -19,7 +19,7 @@ const RemoveUserConfirmDialog = ({handleUnshare, open, setOpen, isDeleting, setI
     isDeleting: boolean
     setIsDeleting: (isDeleting: boolean) => void
 }) => {
-  return (
+  return ( 
    <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>

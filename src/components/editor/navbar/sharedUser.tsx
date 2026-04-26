@@ -53,7 +53,7 @@ export default function SharedUser({
                 handleUnshare={handleUnshare}
                 isDeleting={isRemoving}
                 setIsDeleting={setIsRemoving}
-            />
+            /> 
             <div className="flex items-center justify-between">
                 <div className="flex items-center">
                     <CustomAvatar name={sharedTouser.email} className="mr-2" />

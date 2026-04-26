@@ -24,7 +24,7 @@ const CustomTab = ({ children, selected, onClick, onClose, saved = true }: {
                 (e) => {
                     e.stopPropagation();
                     e.preventDefault();
-                    onClose();
+                    onClose(); 
                 }
             )
             }

@@ -19,7 +19,6 @@ import { fetchUserById } from "@/frontend/actions/user-actions";
 
 const DashboardSharedPage = ({ shared }: { shared: UsersToVirtualBoxesType[] }) => {
 
-
     const [data, setData] = useState<{
         virtualBox: VirtualBoxType,
         user: UserType,

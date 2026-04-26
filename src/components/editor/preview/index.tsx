@@ -20,7 +20,6 @@ function PreviewButton({
     );
 }
 
-
 export default function PreviewWindow({
     collapsed,
     open,
@@ -57,6 +56,7 @@ export default function PreviewWindow({
             socket.off("preview-url", handlePreviewUrl);
         };
     }, [socket, setLoading, setPreviewUrl]);
+
 
     const handleRefresh = () => {
         toast.info("does nothing")
@@ -106,7 +106,8 @@ export default function PreviewWindow({
                             <Loader className="w-8 h-8 text-primary animate-spin" />
                         </div>
                     ) : (
-                        previewUrl && (
+                        previewUrl ? (
+                            
                             <iframe
                                 key={iframeKey}
                                 ref={ref}
@@ -116,6 +117,11 @@ export default function PreviewWindow({
                                 className="rounded-md border-none"
                                 sandbox="allow-scripts allow-same-origin"
                             />
+                        
+                        ) : (
+                            <div className="flex items-center justify-center p-5 h-full text-red-600 text-xl">
+                                No preview available. Please run your project to see the preview.
+                            </div>
                         )
                     )}
                 </div>

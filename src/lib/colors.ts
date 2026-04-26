@@ -7,7 +7,7 @@ export const colors = {
     purple: "#7c3aed",
     pink: "#db2777",
 };
-
+ 
 export const colorClasses = {
     red: {
         ring: "ring-red-700",

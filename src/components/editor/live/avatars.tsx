@@ -3,6 +3,7 @@
 import { colorClasses, colors } from "@/frontend/src/lib/colors";
 import { useOthers } from "@/frontend/liveblocks.config";
 
+
 export function Avatars() {
     const users = useOthers();
 

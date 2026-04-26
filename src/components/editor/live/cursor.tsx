@@ -24,6 +24,7 @@ export function Cursors({ yProvider }: { yProvider: TypedLiveblocksProvider }) {
             color: userInfo.color,
         };
 
+        
         yProvider.awareness.setLocalStateField("user", localUser);
 
         function updateAwarenessUsers() {

@@ -143,7 +143,7 @@ export default function NewProjectModal({
                                     <FormControl>
                                         <Input
                                             disabled={loading}
-                                            placeholder="My project..."
+                                            placeholder="My project"
                                             {...field}
                                         />
                                     </FormControl>

@@ -15,7 +15,7 @@ export const getSocket = (
                 virtualBoxId,
             },
         });
-    }
+    } 
 
     return socket;
 };

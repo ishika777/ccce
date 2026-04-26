@@ -30,7 +30,7 @@ export type TFolder = {
     fullPath: string;
     children: (TFolder | TFile)[]
 }
-
+ 
 export type TFile = {
     id: string
     type: "file"

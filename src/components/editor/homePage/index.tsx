@@ -51,9 +51,6 @@ export default function EditorHomePage({ userData, virtualBox }: {
     }, [userData.id]);
 
 
-
-
-
     return (
         <div className="flex w-screen flex-col h-screen bg-background">
             <Room id={virtualBox.id}>

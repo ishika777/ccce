@@ -129,6 +129,7 @@ export default function GenerateInput({
                     )}
                 </Button>
             </div>
+            
             {expanded && (
                 <>
                     <div className="rounded-md border border-muted-foreground w-full h-28 overflow-y-scroll p-2">

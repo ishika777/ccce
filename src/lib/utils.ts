@@ -42,7 +42,7 @@ export function validateName(
 
 const getParentPath = (path: string) => {
     const parts = path.split('/');
-    parts.pop(); 
+    parts.pop();
     return parts.join('/');
 };
 

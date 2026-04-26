@@ -50,7 +50,7 @@ export default function NavBarUserButton({ userData }: { userData: UserType }) {
                     </div>
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem
+                <DropdownMenuItem 
                     className="!text-destructive cursor-pointer"
                     onClick={() => signOut(() => router.push("/"))}
                 >
